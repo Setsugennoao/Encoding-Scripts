@@ -14,14 +14,14 @@ from kanojo_commons.masking import binarizeMask, getBandingMask, getDebandMask, 
 
 # inclusive
 CROP = Crop((7565, 7590), (7591, 8937), (140, 140))
-MASK_PATH = r"G:\Drive condivisi\Fansub\_Encoding\Anime\Kanojo mo Kanojo\mask_02"
+MASK_PATH = r".\mask_02"
 ED_FRAMES = (32655, 34811)
 
 core = vs.core
 core.max_cache_size = 8 * 2 ** 10
 
 clip = stg.src(r"G:\Il mio Drive\Anime\Settimanali\Kanojo mo Kanojo\[CRUNCHY] Kanojo mo Kanojo - 02 [1080p][MULTI SUB].mkv", 16)
-NCED = stg.src(r"G:\Drive condivisi\Fansub\_Encoding\Anime\Kanojo mo Kanojo\kanojo_commons\NCED\NC_ED_WEB.mkv", 16)
+NCED = stg.src(r".\kanojo_commons\NCED\NC_ED_WEB.mkv", 16)
 
 rescaled_aa, rescaled = rescale_aa(clip, (clip, ED_FRAMES), True)
 

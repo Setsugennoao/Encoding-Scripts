@@ -14,14 +14,14 @@ from kanojo_commons.masking import binarizeMask, getBandingMask, getDebandMask, 
 
 # inclusive
 CROP = None
-MASK_PATH = r"G:\Drive condivisi\Fansub\_Encoding\Anime\Kanojo mo Kanojo\mask_01"
+MASK_PATH = r".\mask_01"
 ED_FRAMES = (32656, 34812)
 
 core = vs.core
 core.max_cache_size = 8 * 2 ** 10
 
 clip = stg.src(r"G:\Il mio Drive\Anime\Settimanali\Kanojo mo Kanojo\[CRUNCHY] Kanojo mo Kanojo - 01 [1080p][MULTI SUB].mkv", 16)
-NCED = stg.src(r"G:\Drive condivisi\Fansub\_Encoding\Anime\Kanojo mo Kanojo\kanojo_commons\NCED\NC_ED_WEB.mkv", 16)
+NCED = stg.src(r".\kanojo_commons\NCED\NC_ED_WEB.mkv", 16)
 
 rescaled_aa, rescaled = rescale_aa(clip, (clip, ED_FRAMES), True)
 
@@ -53,7 +53,7 @@ grain = kgf.adaptive_grain(merge, final_grain_amount, True, 8)
 grain = depth(grain, 10)
 
 if __name__ == '__vapoursynth__':
-  grain[25936:].set_output()
+  grain.set_output()
 else:
   stg.output(clip)
   stg.output(grain)
