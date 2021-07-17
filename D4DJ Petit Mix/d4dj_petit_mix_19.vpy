@@ -4,7 +4,7 @@ import havsfunc as haf
 import kagefunc as kgf
 import vapoursynth as vs
 from vsutil import depth, get_y
-from puchimikku_commons.constants import grain_amount
+from puchimikku_commons.constants import grain_amount, COMMON_MASKS_PATH
 from puchimikku_commons.masking import get_detail_mask, get_linemasks
 from puchimikku_commons.filtering import debanding_filter, degrain_filter, denoise_filter, knl_filter, sraa_filter
 
@@ -48,6 +48,7 @@ sraa_masked = lvf.rfs(
 )
 
 deband = debanding_filter(sraa_masked)
+deband = stg.mask.manual_masking(deband, light_knl, COMMON_MASKS_PATH)
 
 grain = kgf.adaptive_grain(deband, grain_amount, True, 12)
 

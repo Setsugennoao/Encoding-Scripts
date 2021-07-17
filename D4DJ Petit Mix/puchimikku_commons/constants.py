@@ -1,4 +1,7 @@
 import math
+from os import path
+
+COMMON_MASKS_PATH = path.join(path.dirname(__file__), r".\masks")
 
 grain_amount = math.pi / 20 + 69 / 420 / 21 * 9
 
