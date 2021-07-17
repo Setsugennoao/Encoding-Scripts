@@ -13,6 +13,7 @@ from kanojo_commons.masking import binarizeMask, getBandingMask, getDebandMask, 
 # "E:\Desktop\KanojoMoKanojo_03_lossless.mkv"
 
 # inclusive
+CROP = None
 MASK_PATH = r".\mask_03"
 ED_FRAMES = (32656, 34812)
 
@@ -26,45 +27,40 @@ rescaled_aa, rescaled = rescale_aa(clip, (clip, ED_FRAMES), True)
 
 aa_masked = rescaled_aa
 
+if CROP is not None:
+  aa_masked = cropperWrapper(aa_masked, CROP)
+
 if MASK_PATH:
   aa_masked = stg.mask.manual_masking(aa_masked, clip, MASK_PATH, binarizeMask)
 
 if ED_FRAMES and NCED:
   aa_masked = core.std.MaskedMerge(aa_masked, rescaled, getCreditMask(clip, NCED, ED_FRAMES[0]))
-  del NCED
 
 ref = temp_degrain(aa_masked)
 
 denoise, denoise_y = denoising(aa_masked, ref)
-del aa_masked
 deband, deband_y = debanding(denoise, ref)
-del ref
 
 denoise_y_dark = haf.FastLineDarkenMOD(denoise_y, strength=50)
 
 lines = lineMasking(denoise_y, denoise_y_dark)
-del denoise_y, denoise_y_dark
 
 debanding_mask = getDebandMask(lines)
-del lines
 
 deband_dark = core.std.MaskedMerge(deband, denoise, debanding_mask)
-del denoise, debanding_mask
 
 merge = core.std.MaskedMerge(deband, deband_dark, getBandingMask(deband_y))
-del deband_dark, deband, deband_y
 
 grain = kgf.adaptive_grain(merge, final_grain_amount, True, 8)
 grain = depth(grain, 10)
-del merge
 
 if __name__ == '__vapoursynth__':
   grain.set_output()
 else:
-  # stg.output(clip)
+  stg.output(clip)
   stg.output(grain)
-  # stg.output(aa_masked)
-  # stg.output(denoise)
-  # stg.output(deband)
-  # stg.output(lines)
-  # stg.output(debanding_mask)
+  stg.output(aa_masked)
+  stg.output(denoise)
+  stg.output(deband)
+  stg.output(lines)
+  stg.output(debanding_mask)
