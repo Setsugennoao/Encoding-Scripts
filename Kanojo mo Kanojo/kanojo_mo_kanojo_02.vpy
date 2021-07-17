@@ -18,7 +18,6 @@ MASK_PATH = r".\mask_02"
 ED_FRAMES = (32655, 34811)
 
 core = vs.core
-core.max_cache_size = 8 * 2 ** 10
 
 clip = stg.src(r"G:\Il mio Drive\Anime\Settimanali\Kanojo mo Kanojo\[CRUNCHY] Kanojo mo Kanojo - 02 [1080p][MULTI SUB].mkv", 16)
 NCED = stg.src(r".\kanojo_commons\NCED\NC_ED_WEB.mkv", 16)

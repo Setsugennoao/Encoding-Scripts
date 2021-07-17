@@ -9,7 +9,6 @@ from puchimikku_commons.masking import get_detail_mask, get_linemasks
 from puchimikku_commons.filtering import debanding_filter, degrain_filter, denoise_filter, knl_filter, sraa_filter
 
 core = vs.core
-core.max_cache_size = 6 * 2 ** 10
 
 HEAVY_KNL_FRAMES = [(0, 5), (3997, 4109), (4143, 4246)]
 

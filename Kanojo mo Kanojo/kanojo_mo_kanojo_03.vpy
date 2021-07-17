@@ -18,7 +18,6 @@ MASK_PATH = r".\mask_03"
 ED_FRAMES = (32656, 34812)
 
 core = vs.core
-core.max_cache_size = 8 * 2 ** 10
 
 clip = stg.src(r"G:\Il mio Drive\Anime\Settimanali\Kanojo mo Kanojo\[CRUNCHY] Kanojo mo Kanojo - 03 [1080p][MULTI SUB].mkv", 16)
 NCED = stg.src(r".\kanojo_commons\NCED\NC_ED_WEB.mkv", 16)
@@ -55,7 +54,7 @@ grain = kgf.adaptive_grain(merge, final_grain_amount, True, 8)
 grain = depth(grain, 10)
 
 if __name__ == '__vapoursynth__':
-  grain.set_output()
+  grain[32145].set_output()
 else:
   stg.output(clip)
   stg.output(grain)
