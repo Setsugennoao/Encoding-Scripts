@@ -6,7 +6,7 @@ from typing import List
 import vardefunc as vdf
 import vapoursynth as vs
 from vsutil import depth
-from vsutil.clips import get_y
+from vsutil.clips import get_y, depth
 from lvsfunc.types import Range, Union, Tuple
 from .constants import descale_w, descale_h, kernel
 
@@ -14,8 +14,19 @@ core = vs.core
 
 
 def rescale_aa(clip: vs.VideoNode, replace: Tuple[vs.VideoNode, Union[Range, List[Range], None]] = None, retTuple: bool = False) -> vs.VideoNode:  # pylint: disable=unsubscriptable-object
-  rescaled = lvf.scale.descale(clip, lambda c, w, y: stg.upscale.upscale_rescale(clip, c, w, y), descale_w, descale_h, kernel)  # pylint: disable=too-many-function-args
-  rescaled = depth(rescaled, 16)
+  clip_y = get_y(clip)
+
+  descaled = kernel.descale(depth(clip_y, 32), descale_w, descale_h)
+
+  rescaled = kernel.scale(descaled, clip.width, clip.height)
+
+  descale_mask = lvf.scale.descale_detail_mask(clip_y, rescaled)
+
+  upscaled = stg.upscale.upscale(descaled, clip.width, clip.height)
+
+  upscaled = core.std.MaskedMerge(upscaled, clip_y, descale_mask)
+
+  rescaled = depth(vdf.misc.merge_chroma(upscaled, clip), 16)
 
   if replace is not None:
     rescaled = lvf.rfs(rescaled, replace[0], replace[1])
@@ -31,14 +42,10 @@ def temp_degrain(clip: vs.VideoNode, search: int = 2, **kwargs) -> vs.VideoNode:
 
 def debanding(clip: vs.VideoNode, ref: vs.VideoNode = None) -> Tuple[vs.VideoNode, vs.VideoNode]:
   deband = core.average.Mean([
-      clip,
       vdf.deband.dumb3kdb(clip, 8, 25),
       vdf.deband.dumb3kdb(clip, 12, 36),
-      vdf.deband.dumb3kdb(clip, 18, 64),
-      vdf.deband.dumb3kdb(clip, 24, 96),
+      vdf.deband.dumb3kdb(clip, 24, 48),
       vdf.placebo.deband(clip, 8, 4, 1, 0),
-      vdf.placebo.deband(clip, 16, 3, 1, 0),
-      vdf.placebo.deband(clip, 32, 7, 1, 0),
   ])
 
   if ref is not None:
