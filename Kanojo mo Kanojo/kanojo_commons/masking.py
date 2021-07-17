@@ -10,7 +10,7 @@ core = vs.core
 def tcanny(clip: vs.VideoNode, thr: float):
   gaussian = clip.bilateral.Gaussian(1)
   msrcp = core.retinex.MSRCP(gaussian, sigma=[50, 200, 350], upper_thr=thr)
-  return msrcp.tcanny.TCanny(mode=1, sigma=1).std.Minimum(coordinates=[1, 0, 1, 0, 0, 1, 0, 1])
+  return msrcp.tcanny.TCannyCL(mode=1, sigma=1).std.Minimum(coordinates=[1, 0, 1, 0, 0, 1, 0, 1])
 
 
 def binarizeMask(mask: vs.VideoNode):
