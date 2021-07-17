@@ -17,8 +17,8 @@ def rescale_aa(clip: vs.VideoNode, replace: Tuple[vs.VideoNode, Union[Range, Lis
   clip_y = get_y(clip)
 
   descaled = kernel.descale(depth(clip_y, 32), descale_w, descale_h)
-
   rescaled = kernel.scale(descaled, clip.width, clip.height)
+  descaled, rescaled = depth(descaled, 16), depth(rescaled, 16)
 
   descale_mask = lvf.scale.descale_detail_mask(clip_y, rescaled)
 
@@ -26,7 +26,7 @@ def rescale_aa(clip: vs.VideoNode, replace: Tuple[vs.VideoNode, Union[Range, Lis
 
   upscaled = core.std.MaskedMerge(upscaled, clip_y, descale_mask)
 
-  rescaled = depth(vdf.misc.merge_chroma(upscaled, clip), 16)
+  rescaled = vdf.misc.merge_chroma(upscaled, clip)
 
   if replace is not None:
     rescaled = lvf.rfs(rescaled, replace[0], replace[1])
