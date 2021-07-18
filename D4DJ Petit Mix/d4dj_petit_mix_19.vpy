@@ -4,8 +4,8 @@ import havsfunc as haf
 import kagefunc as kgf
 import vapoursynth as vs
 from vsutil import depth, get_y
-from puchimikku_commons.constants import grain_amount, COMMON_MASKS_PATH
 from puchimikku_commons.masking import get_detail_mask, get_linemasks
+from puchimikku_commons.constants import grain_amount, COMMON_MASKS_PATH
 from puchimikku_commons.filtering import debanding_filter, degrain_filter, denoise_filter, knl_filter, sraa_filter
 
 # vspipe --y4m --progress d4dj_petit_mix_19.vpy - | ffmpeg -i - -c:v
