@@ -8,9 +8,14 @@ from puchimikku_commons.constants import grain_amount, COMMON_MASKS_PATH
 from puchimikku_commons.masking import get_detail_mask, get_linemasks
 from puchimikku_commons.filtering import debanding_filter, degrain_filter, denoise_filter, knl_filter, sraa_filter
 
-core = vs.core
+# vspipe --y4m --progress d4dj_petit_mix_19.vpy - | ffmpeg -i - -c:v
+# ffv1 -coder 1 -context 0 -g 1 -level 3 -threads 4 -slices 24 -slicecrc 1
+# "E:\Desktop\D4DJPetitMix_19_lossless.mkv"
 
+# inclusive
 HEAVY_KNL_FRAMES = [(0, 5), (3997, 4109), (4143, 4246)]
+
+core = vs.core
 
 amazon = stg.src(r"E:\Desktop\D4DJ Petit Mix - 19\Amazon-ぷっちみく♪ D4DJ Petit Mix_S01E19_戦慄令嬢～どうあがいても…絶叫～.mp4", 16)
 
