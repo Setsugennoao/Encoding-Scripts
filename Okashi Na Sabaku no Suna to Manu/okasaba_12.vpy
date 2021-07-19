@@ -3,6 +3,7 @@ import EoEfunc as eoe
 import kagefunc as kgf
 import vardefunc as vdf
 import vapoursynth as vs
+from vsutil import depth
 from okasaba_commons.constants import grain_amount, mitchell
 
 # vspipe --y4m --progress okasaba_12.vpy - | ffmpeg -i pipe: -crf 15 -preset veryslow -c:v hevc "E:\Desktop\okasaba_12.mkv"
@@ -21,6 +22,7 @@ deband = vdf.placebo.deband(deband, 8, 4, 1, 0)
 deband = eoe.misc.ContraSharpening(deband, upscale)
 
 grain = kgf.adaptive_grain(deband, grain_amount, True, 8.6)
+grain = depth(grain, 10)
 
 if __name__ == '__vapoursynth__':
   grain.set_output()

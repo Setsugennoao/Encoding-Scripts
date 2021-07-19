@@ -2,6 +2,7 @@ import stgfunc as stg
 import EoEfunc as eoe
 import kagefunc as kgf
 import vapoursynth as vs
+from vsutil import depth
 from okasaba_commons.constants import grain_amount, mitchell
 
 # vspipe --y4m --progress okasaba_13.vpy - | ffmpeg -i pipe: -crf 15 -preset veryslow -c:v hevc "E:\Desktop\okasaba_13.mkv"
@@ -16,6 +17,7 @@ denoise = eoe.denoise.BM3D(clip, [2.33, 1.35, 1.3], 2, ["vn", "high"])
 upscale = stg.upscale.upscale(denoise)
 
 grain = kgf.adaptive_grain(upscale, grain_amount, True, 8.6)
+grain = depth(grain, 10)
 
 if __name__ == '__vapoursynth__':
   grain.set_output()
