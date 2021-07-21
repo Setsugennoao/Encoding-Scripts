@@ -1,3 +1,4 @@
+import stgfunc as stg
 import EoEfunc as eoe
 import lvsfunc as lvf
 import havsfunc as hvf
@@ -30,19 +31,10 @@ def degrain_filter(clip: vs.VideoNode) -> vs.VideoNode:
 
 
 def knl_filter(clip: vs.VideoNode, degrain: vs.VideoNode) -> Tuple[vs.VideoNode, vs.VideoNode]:
-  planes = split(clip)
-  degrain_planes = split(degrain)
-
-  def _knl_filter(args) -> vs.VideoNode:
-    def _knl_plane(plane_clip: vs.VideoNode, plane_degrain: vs.VideoNode, plane_index: int) -> vs.VideoNode:
-      knl = plane_degrain.knlm.KNLMeansCL(**args[plane_index])
-      return eoe.misc.ContraSharpening(knl, plane_clip, 2)
-
-    joined = [_knl_plane(x, degrain_planes[i], i) for i, x in enumerate(planes)]
-
-    return join(joined)
-
-  return (_knl_filter(light_knl_args), _knl_filter(heavy_knl_args))
+  return (
+      stg.denoise.KNLMeansCL(degrain, **light_knl_args, contraSharpening=True, ref_clip=clip),
+      stg.denoise.KNLMeansCL(degrain, **heavy_knl_args, contraSharpening=True, ref_clip=clip)
+  )
 
 
 def debanding_filter(clip: vs.VideoNode) -> vs.VideoNode:
