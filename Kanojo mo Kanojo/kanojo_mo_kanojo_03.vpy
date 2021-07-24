@@ -3,7 +3,7 @@ import kagefunc as kgf
 import havsfunc as haf
 import vapoursynth as vs
 from vsutil import depth
-from kanojo_commons.crop_21_9 import Crop, cropperWrapper
+from kanojo_commons.crop_21_9 import cropperWrapper
 from kanojo_commons.constants import final_grain_amount
 from kanojo_commons.filtering import rescale_aa, debanding, denoising, temp_degrain
 from kanojo_commons.masking import binarizeMask, getBandingMask, getDebandMask, lineMasking, getCreditMask
@@ -54,7 +54,7 @@ grain = kgf.adaptive_grain(merge, final_grain_amount, True, 8)
 grain = depth(grain, 10)
 
 if __name__ == '__vapoursynth__':
-  grain[32145].set_output()
+  grain.set_output()
 else:
   stg.output(clip)
   stg.output(grain)
