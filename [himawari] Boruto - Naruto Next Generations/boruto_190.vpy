@@ -3,7 +3,7 @@ import lvsfunc as lvf
 import kagefunc as kgf
 import vapoursynth as vs
 from vsutil import plane, depth, join
-from boruto_commons.utils import resize_spline
+from boruto_commons.utils import resize_spline, get_default_path
 from boruto_commons.constants import TV_TOKYO_FRAMES, ED_15_FRAMES
 from boruto_commons.scenefilter import filterEnding15, filterPreview, filterTVTokyo
 from boruto_commons.filtering import knl_filter, descale_denoiseY_filter, debanding_filter, limit_yuv_filter, bil_downscale
@@ -11,7 +11,7 @@ from boruto_commons.filtering import knl_filter, descale_denoiseY_filter, deband
 
 core = vs.core
 
-src = stg.src(r"E:\Desktop\Boruto\190\[SubsPlease] Boruto - Naruto Next Generations - 190 (1080p) [74527B94].mkv", 16, matrix_prop=1)
+src = stg.src(get_default_path(__file__), 16, matrix_prop=1)
 
 denoised_y, descale_mask = descale_denoiseY_filter(src)
 bil_downscale = bil_downscale(src)
