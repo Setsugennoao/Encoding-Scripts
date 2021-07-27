@@ -8,7 +8,7 @@ from boruto_commons.scenefilter import filterEnding16, filterPreview, filterTVTo
 from boruto_commons.constants import FINAL_GRAIN_AMOUNT, ENCODING_x264_ARGS, TV_TOKYO_FRAMES, ED_16_FRAMES
 from boruto_commons.filtering import knl_filter, descale_denoiseY_filter, debanding_filter, limit_yuv_filter, bil_downscale
 
-ED_16_FRAMES = ED_16_FRAMES[0]
+ED_16_FRAMES = ED_16_FRAMES[2]
 
 core = vs.core
 
