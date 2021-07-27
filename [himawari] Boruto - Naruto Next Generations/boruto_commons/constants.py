@@ -5,6 +5,8 @@ kernel = lvf.kernels.Mitchell()
 
 desc_w, desc_h = (get_w(810), 810)
 
+FINAL_GRAIN_AMOUNT = 0.356
+
 
 def ENCODING_x264_ARGS(qpfilename: str):
   return dict(
@@ -22,4 +24,11 @@ def ENCODING_x264_ARGS(qpfilename: str):
 
 TV_TOKYO_FRAMES = (0, 95)
 ED_15_FRAMES = (31517, 33661)
-ED_16_FRAMES = (31505, 33661)
+
+ED_16_FRAMES = [
+    (31505, 33661),
+    (31504, 33661),
+    (31505, 33662),
+    (31506, 33663),
+    (31506, 33661)
+]
