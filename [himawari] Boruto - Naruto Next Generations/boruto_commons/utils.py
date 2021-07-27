@@ -1,6 +1,11 @@
 import inspect
 import vapoursynth as vs
 from vsutil import depth
+from typing import Tuple
+
+
+def get_filenames(filename: str) -> Tuple[str, str]:
+  return rf"{filename.replace('.mkv', '_sc.log')}", rf"{filename.replace('.mkv', '_premux.mkv')}"
 
 
 def resize_spline(clip: vs.VideoNode) -> vs.VideoNode:
