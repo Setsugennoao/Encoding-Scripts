@@ -1,9 +1,13 @@
 import numpy as np
+import stgfunc as stg
 import lvsfunc as lvf
 import mvsfunc as mvf
 import vsdpir as dpir
-from typing import Tuple
+import EoEfunc as eoe
+import vardefunc as vdf
 import vapoursynth as vs
+from vsutil import plane
+from typing import Tuple
 from .classes import Crop, SimpleCrop
 from .masking import get_downdescale_mask
 from .cropping import crop_resize_to_720p
@@ -37,6 +41,24 @@ def filterEnding15(clip: vs.VideoNode, ED_FRAMES: Tuple[int, int]) -> vs.VideoNo
         return crop_resize_to_720p(clip, crop)[n]
 
     return clip[n]
+
+  return core.std.FrameEval(clip, _filterEnding, clip)
+
+
+def filterEnding16(clip: vs.VideoNode, ED_FRAMES: Tuple[int, int]) -> vs.VideoNode:
+  def _filterEnding(n: int, f: vs.VideoFrame) -> vs.VideoNode:
+    clip_y = plane(clip, 0)
+    denoise_y = eoe.denoise.BM3D(clip_y, 1.45, 2, 'high')
+
+    denoised = vdf.misc.merge_chroma(
+        stg.denoise.KNLMeansCL(denoise_y, 1, 2, 4, 1.54, True, clip_y),
+        stg.denoise.KNLMeansCL(clip, 1, 2, 8, [None, 1.14, 1.32], True, clip)
+    )
+
+    edfx = denoised.edgefixer.ContinuityFixer(*(4,) * 4)
+    edfx = denoised.edgefixer.ContinuityFixer(*(3,) * 4)
+
+    return edfx.resize.Spline64(1280, 720, format=vs.YUV444P16)
 
   return core.std.FrameEval(clip, _filterEnding, clip)
 
