@@ -1,5 +1,4 @@
 import stgfunc as stg
-import lvsfunc as lvf
 import kagefunc as kgf
 import vapoursynth as vs
 from vsutil import plane, depth, join
@@ -31,7 +30,7 @@ scenefiltered = filterTVTokyo(denoised, bil_downscale, TV_TOKYO_FRAMES)
 
 scenefiltered = filterPreview(scenefiltered, bil_downscale, descale_mask, ED_16_FRAMES)
 
-scenefiltered = lvf.rfs(scenefiltered, filterEnding16(denoised, ED_16_FRAMES), ED_16_FRAMES)
+scenefiltered = filterEnding16(src, scenefiltered, ED_16_FRAMES)
 
 deband = debanding_filter(scenefiltered)
 
