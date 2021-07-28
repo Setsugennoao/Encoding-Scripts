@@ -6,8 +6,8 @@ import vsdpir as dpir
 import EoEfunc as eoe
 import vardefunc as vdf
 import vapoursynth as vs
-from vsutil import plane
 from typing import Tuple
+from vsutil import plane, insert_clip
 from .classes import Crop, SimpleCrop
 from .masking import get_downdescale_mask
 from .cropping import crop_resize_to_720p
@@ -45,22 +45,23 @@ def filterEnding15(clip: vs.VideoNode, ED_FRAMES: Tuple[int, int]) -> vs.VideoNo
   return core.std.FrameEval(clip, _filterEnding, clip)
 
 
-def filterEnding16(clip: vs.VideoNode, ED_FRAMES: Tuple[int, int]) -> vs.VideoNode:
-  def _filterEnding(n: int, f: vs.VideoFrame) -> vs.VideoNode:
-    clip_y = plane(clip, 0)
-    denoise_y = eoe.denoise.BM3D(clip_y, 1.45, 2, 'high')
+def filterEnding16(src: vs.VideoNode, clip: vs.VideoNode, ED_FRAMES: Tuple[int, int]) -> vs.VideoNode:
+  ending = src[ED_FRAMES[0]:ED_FRAMES[1] + 1]
 
-    denoised = vdf.misc.merge_chroma(
-        stg.denoise.KNLMeansCL(denoise_y, 1, 2, 4, 1.54, True, clip_y),
-        stg.denoise.KNLMeansCL(clip, 1, 2, 8, [None, 1.14, 1.32], True, clip)
-    )
+  clip_y = plane(ending, 0)
+  denoise_y = eoe.denoise.BM3D(clip_y, 1.45, 1, 'high')
 
-    edfx = denoised.edgefixer.ContinuityFixer(*(4,) * 4)
-    edfx = denoised.edgefixer.ContinuityFixer(*(3,) * 4)
+  denoised = vdf.misc.merge_chroma(
+      stg.denoise.KNLMeansCL(denoise_y, 1, 2, 4, 1.54, True, clip_y),
+      stg.denoise.KNLMeansCL(ending, 1, 2, 8, [None, 1.14, 1.32], True, ending)
+  )
 
-    return edfx.resize.Spline64(1280, 720, format=vs.YUV444P16)
+  edfx = denoised.edgefixer.ContinuityFixer(*(4,) * 4)
+  edfx = denoised.edgefixer.ContinuityFixer(*(3,) * 4)
 
-  return core.std.FrameEval(clip, _filterEnding, clip)
+  ed_final = edfx.resize.Spline64(1280, 720, format=vs.YUV444P16)
+
+  return insert_clip(clip, ed_final, ED_FRAMES[0])
 
 
 def filterTVTokyo(clip: vs.VideoNode, bil_downscale: vs.VideoNode, TV_TOKYO_FRAMES: Tuple[int, int]) -> vs.VideoNode:
