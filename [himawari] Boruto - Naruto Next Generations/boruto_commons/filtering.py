@@ -17,7 +17,7 @@ def bil_downscale(clip: vs.VideoNode) -> vs.VideoNode:
 def descale_denoiseY_filter(clip: vs.VideoNode) -> Tuple[vs.VideoNode, vs.VideoNode]:
   src_y = get_y(clip)
 
-  clip_y = eoe.denoise.BM3D(src_y, 3.55, 1, "high", CUDA=[False, True])
+  clip_y = eoe.denoise.BM3D(src_y, 3.55, 1, "high")
   clip_y = eoe.misc.ContraSharpening(clip_y, src_y)
   clip_y = depth(clip_y, 32)
 
