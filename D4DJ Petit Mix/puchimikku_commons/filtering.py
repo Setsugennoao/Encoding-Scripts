@@ -25,7 +25,7 @@ def degrain_filter(clip: vs.VideoNode) -> vs.VideoNode:
   planes = enumerate(split(clip))
 
   def _degrain_plane(plane_clip: vs.VideoNode, plane_index: int):
-    return hvf.SMDegrain(plane_clip, 2, *degrain_args[plane_index])
+    return hvf.SMDegrain(plane_clip, 1, *degrain_args[plane_index])
 
   return join([_degrain_plane(x, i) for i, x in planes])
 
