@@ -5,8 +5,7 @@ import havsfunc as haf
 from typing import List
 import vardefunc as vdf
 import vapoursynth as vs
-from vsutil import depth
-from vsutil.clips import get_y, depth
+from vsutil import get_y, depth
 from lvsfunc.types import Range, Union, Tuple
 from .constants import descale_w, descale_h, kernel
 
