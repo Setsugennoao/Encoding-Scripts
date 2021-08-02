@@ -4,6 +4,8 @@ import lvsfunc as lvf
 import mvsfunc as mvf
 import vsdpir as dpir
 import EoEfunc as eoe
+import awsmfunc as awsf
+import muvsfunc as mvsf
 import vardefunc as vdf
 import vapoursynth as vs
 from typing import Tuple
@@ -62,6 +64,23 @@ def filterEnding16(src: vs.VideoNode, clip: vs.VideoNode, ED_FRAMES: Tuple[int, 
   ed_final = edfx.resize.Spline64(1280, 720, format=vs.YUV444P16)
 
   return insert_clip(clip, ed_final, ED_FRAMES[0])
+
+
+def filterEnding17(src: vs.VideoNode, clip: vs.VideoNode, ED_FRAMES: Tuple[int, int]) -> vs.VideoNode:
+  ending = src[ED_FRAMES[0]:ED_FRAMES[1] + 1]
+
+  clip_y = plane(ending, 0)
+  denoise_y = eoe.denoise.BM3D(clip_y, 1.35, 1, 'high')
+
+  denoise_y = mvsf.SSIM_downsample(denoise_y, 1280, 720, 0)
+
+  denoise_uv = stg.denoise.KNLMeansCL(ending, 1, 2, 8, [None, 1.14, 1.32], True, ending)
+
+  denoised = core.std.ShufflePlanes([denoise_y, denoise_uv], [0, 1, 2], vs.YUV)
+
+  edgefixed = awsf.bbmod(denoised, 1, 1)
+
+  return insert_clip(clip, edgefixed, ED_FRAMES[0])
 
 
 def filterTVTokyo(clip: vs.VideoNode, bil_downscale: vs.VideoNode, TV_TOKYO_FRAMES: Tuple[int, int]) -> vs.VideoNode:
