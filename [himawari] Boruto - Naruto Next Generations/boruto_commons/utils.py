@@ -1,4 +1,5 @@
 import inspect
+import muvsfunc as mvsf
 import vapoursynth as vs
 from vsutil import depth
 from typing import Tuple
@@ -8,8 +9,14 @@ def get_filenames(filename: str) -> Tuple[str, str]:
   return rf"{filename.replace('.mkv', '_sc.log')}", rf"{filename.replace('.mkv', '_premux.mkv')}"
 
 
+# 190~205
 def resize_spline(clip: vs.VideoNode) -> vs.VideoNode:
   return depth(clip.resize.Spline64(1280, 720), 16)
+
+
+# 206~
+def resize_ssim(clip: vs.VideoNode) -> vs.VideoNode:
+  return depth(mvsf.SSIM_downsample(clip, 1280, 720, 0, kernel='Spline64'), 16)
 
 
 def get_ep_number(filename: str):
