@@ -14,7 +14,7 @@ from kanojo_commons.masking import binarizeMask, getBandingMask, getDebandMask, 
 
 # inclusive
 CROP = Crop((7565, 7590), (7591, 8937), (140, 140))
-MASK_PATH = r".\mask_02"
+MASK_PATH = r".\masks\mask_02"
 ED_FRAMES = (32655, 34811)
 
 core = vs.core

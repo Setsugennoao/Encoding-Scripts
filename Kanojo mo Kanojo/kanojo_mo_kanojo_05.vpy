@@ -8,11 +8,13 @@ from kanojo_commons.constants import final_grain_amount
 from kanojo_commons.filtering import rescale_aa, debanding, denoising, temp_degrain
 from kanojo_commons.masking import binarizeMask, getBandingMask, getDebandMask, lineMasking, getCreditMask
 
-# vspipe --y4m --progress kanojo_mo_kanojo_05.vpy - | ffmpeg -i - -c:v ffv1 -coder 1 -context 0 -g 1 -level 3 -threads 4 -slices 24 -slicecrc 1 "E:\Desktop\KanojoMoKanojo_05_lossless.mkv"
+# vspipe --y4m --progress kanojo_mo_kanojo_05.vpy - | ffmpeg -i - -c:v
+# ffv1 -coder 1 -context 0 -g 1 -level 3 -threads 4 -slices 24 -slicecrc 1
+# "E:\Desktop\KanojoMoKanojo_05_lossless.mkv"
 
 # inclusive
 CROP = None
-MASK_PATH = r".\mask_05"
+MASK_PATH = r".\masks\mask_05"
 ED_FRAMES = (32656, 34812)
 
 core = vs.core
