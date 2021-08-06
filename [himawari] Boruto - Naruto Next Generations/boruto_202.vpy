@@ -1,4 +1,5 @@
 import stgfunc as stg
+import lvsfunc as lvf
 import kagefunc as kgf
 import vapoursynth as vs
 from vsutil import plane, depth, join
@@ -14,6 +15,14 @@ core = vs.core
 filename = get_default_path(__file__)
 
 src = stg.src(filename, 16, matrix_prop=1)
+
+edgefix_crop = src.std.Crop(0, 0, 0, 2)
+edgefix_crop = core.std.StackVertical([
+    src[18251].std.Crop(0, 0, 0, src.height - 2),
+    edgefix_crop
+])
+src = lvf.rfs(src, edgefix_crop, (18252, 18259))
+
 
 denoised_y, descale_mask = descale_denoiseY_filter(src)
 bil_downscale = bil_downscale(src)
