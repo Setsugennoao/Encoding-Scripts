@@ -1,6 +1,7 @@
 import stgfunc as stg
 import lvsfunc as lvf
 import EoEfunc as eoe
+import awsmfunc as awsf
 import vardefunc as vdf
 import vapoursynth as vs
 from vsutil import get_y, depth
@@ -15,6 +16,7 @@ def bil_downscale(clip: vs.VideoNode) -> vs.VideoNode:
 
 
 def descale_denoiseY_filter(clip: vs.VideoNode) -> Tuple[vs.VideoNode, vs.VideoNode]:
+  clip = awsf.bbmod(clip, 1, 1)
   src_y = get_y(clip)
 
   clip_y = eoe.denoise.BM3D(src_y, 3.55, 1, "high")
