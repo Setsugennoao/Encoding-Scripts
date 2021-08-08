@@ -67,9 +67,8 @@ if __name__ == '__main__':
 elif __name__ == '__vapoursynth__':
   grain.set_output()
 else:
-  stg.output(src)
-  # stg.output(bil_downscale)
-  # stg.output(grain)
-  # stg.output(denoised)
-  # stg.output(scenefiltered)
-  # stg.output(deband)
+  stg.output(bil_downscale)
+  stg.output(grain)
+  stg.output(denoised)
+  stg.output(scenefiltered)
+  stg.output(deband)
