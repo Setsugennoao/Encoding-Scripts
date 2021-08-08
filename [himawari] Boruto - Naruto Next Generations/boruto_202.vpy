@@ -16,13 +16,25 @@ filename = get_default_path(__file__)
 
 src = stg.src(filename, 16, matrix_prop=1)
 
-edgefix_crop = src.std.Crop(0, 0, 0, 2)
-edgefix_crop = core.std.StackVertical([
+src = lvf.rfs(src, core.std.StackVertical([
     src[18251].std.Crop(0, 0, 0, src.height - 2),
-    edgefix_crop
-])
-src = lvf.rfs(src, edgefix_crop, (18252, 18259))
+    src.std.Crop(0, 0, 0, 2)
+]), (18252, 18259))
 
+src = lvf.rfs(src, core.std.StackVertical([
+    src[2:].resize.Point(src_top=0, src_left=6.5).std.Crop(0, 0, 0, src.height - 2),
+    src.std.Crop(0, 0, 0, 2)
+]), (10251, 10252))
+
+src = lvf.rfs(src, core.std.StackVertical([
+    src[2:].resize.Point(src_top=1.575, src_left=6.5).std.Crop(0, 0, 0, src.height - 2),
+    src.std.Crop(0, 0, 0, 2)
+]), (10253, 10254))
+
+src = lvf.rfs(src, core.std.StackVertical([
+    src[10441].std.Crop(0, 0, 0, src.height - 2),
+    src.std.Crop(0, 0, 0, 2)
+]), (10442, 10445))
 
 denoised_y, descale_mask = descale_denoiseY_filter(src)
 bil_downscale = bil_downscale(src)
@@ -55,8 +67,9 @@ if __name__ == '__main__':
 elif __name__ == '__vapoursynth__':
   grain.set_output()
 else:
-  stg.output(bil_downscale)
-  stg.output(grain)
-  stg.output(denoised)
-  stg.output(scenefiltered)
-  stg.output(deband)
+  stg.output(src)
+  # stg.output(bil_downscale)
+  # stg.output(grain)
+  # stg.output(denoised)
+  # stg.output(scenefiltered)
+  # stg.output(deband)
