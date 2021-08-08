@@ -13,13 +13,10 @@ ED_16_FRAMES = ED_16_FRAMES[1]
 core = vs.core
 
 filename = get_default_path(__file__)
+filename_198 = get_default_path("198").replace('198\\', "Released\\198\\")
 
 src = stg.src(filename, 16, matrix_prop=1)
-
-src = lvf.rfs(src, core.std.StackVertical([
-    src[18251].std.Crop(0, 0, 0, src.height - 2),
-    src.std.Crop(0, 0, 0, 2)
-]), (18252, 18259))
+src_198 = stg.src(filename_198, 16, matrix_prop=1)
 
 src = lvf.rfs(src, core.std.StackVertical([
     src[2:].resize.Point(src_top=0, src_left=6.5).std.Crop(0, 0, 0, src.height - 2),
@@ -35,6 +32,16 @@ src = lvf.rfs(src, core.std.StackVertical([
     src[10441].std.Crop(0, 0, 0, src.height - 2),
     src.std.Crop(0, 0, 0, 2)
 ]), (10442, 10445))
+
+src = lvf.rfs(src, core.std.StackVertical([
+    src[18251].std.Crop(0, 0, 0, src.height - 2),
+    src.std.Crop(0, 0, 0, 2)
+]), (18252, 18259))
+
+ed_fuck_cred_mask = kgf.squaremask(src, 666, 696, 1140, 100)
+
+src = lvf.rfs(src, core.std.MaskedMerge(src_198, src, ed_fuck_cred_mask), (33299))
+src = lvf.rfs(src, src.resize.Point(src_top=-2), (33300, 33303))
 
 denoised_y, descale_mask = descale_denoiseY_filter(src)
 bil_downscale = bil_downscale(src)
