@@ -2,7 +2,7 @@ import stgfunc as stg
 import lvsfunc as lvf
 import kagefunc as kgf
 import vapoursynth as vs
-from vsutil import plane, depth, join
+from vsutil import plane, depth, join, get_y, iterate
 from boruto_commons.utils import resize_spline, get_default_path, get_filenames
 from boruto_commons.scenefilter import filterEnding16, filterPreview, filterTVTokyo
 from boruto_commons.constants import FINAL_GRAIN_AMOUNT, ENCODING_x264_ARGS, TV_TOKYO_FRAMES, ED_16_FRAMES
@@ -40,8 +40,14 @@ src = lvf.rfs(src, core.std.StackVertical([
 
 ed_fuck_cred_mask = kgf.squaremask(src, 666, 696, 1140, 100)
 
+src = lvf.rfs(src, src_198, [(32683, 32688), (32909, 32914)])
 src = lvf.rfs(src, core.std.MaskedMerge(src_198, src, ed_fuck_cred_mask), (33299))
 src = lvf.rfs(src, src.resize.Point(src_top=-2), (33300, 33303))
+
+ed_fuck_cred_mask_2 = core.std.Expr([get_y(src), get_y(src_198)], 'x y - abs').std.Binarize(25 << 8)
+ed_fuck_cred_mask_2 = iterate(iterate(ed_fuck_cred_mask_2, stg.Maximum, 10), core.std.Inflate, 500)
+
+src = lvf.rfs(src, core.std.MaskedMerge(src_198, src, ed_fuck_cred_mask_2[32728]), (32711, 32713))
 
 denoised_y, descale_mask = descale_denoiseY_filter(src)
 bil_downscale = bil_downscale(src)
