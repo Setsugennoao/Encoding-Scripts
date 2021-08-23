@@ -2,7 +2,6 @@ import numpy as np
 import stgfunc as stg
 import lvsfunc as lvf
 import mvsfunc as mvf
-import vsdpir as dpir
 import EoEfunc as eoe
 import awsmfunc as awsf
 import muvsfunc as mvsf
@@ -68,13 +67,14 @@ def filterEnding16(src: vs.VideoNode, clip: vs.VideoNode, ED_FRAMES: Tuple[int, 
 
 def filterEnding17(src: vs.VideoNode, clip: vs.VideoNode, ED_FRAMES: Tuple[int, int]) -> vs.VideoNode:
   ending = src[ED_FRAMES[0]:ED_FRAMES[1] + 1]
+  yuv_444 = ending.resize.Spline64(1280, 720, format=vs.YUV444P16)
 
   clip_y = plane(ending, 0)
   denoise_y = eoe.denoise.BM3D(clip_y, 1.35, 1, 'high')
 
-  denoise_y = mvsf.SSIM_downsample(denoise_y, 1280, 720, 0)
+  denoise_y = mvsf.SSIM_downsample(denoise_y, 1280, 720, 0, format=yuv_444.format.id)
 
-  denoise_uv = stg.denoise.KNLMeansCL(ending, 1, 2, 8, [None, 1.14, 1.32], True, ending)
+  denoise_uv = stg.denoise.KNLMeansCL(yuv_444, 1, 2, 8, [None, 1.14, 1.32], True, yuv_444)
 
   denoised = core.std.ShufflePlanes([denoise_y, denoise_uv], [0, 1, 2], vs.YUV)
 
@@ -86,7 +86,7 @@ def filterEnding17(src: vs.VideoNode, clip: vs.VideoNode, ED_FRAMES: Tuple[int, 
 def filterTVTokyo(clip: vs.VideoNode, bil_downscale: vs.VideoNode, TV_TOKYO_FRAMES: Tuple[int, int]) -> vs.VideoNode:
   return lvf.rfs(
       clip,
-      mvf.ToYUV(dpir.DPIR(mvf.ToRGB(bil_downscale, depth=32)), depth=16),
+      mvf.ToYUV(mvf.ToRGB(bil_downscale, depth=32).vsdpir.Denoise(5, 1, 0, 0), depth=16),
       TV_TOKYO_FRAMES
   )
 
