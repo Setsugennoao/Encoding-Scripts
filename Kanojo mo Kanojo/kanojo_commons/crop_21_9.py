@@ -33,7 +33,7 @@ def cropperWrapper(clip_in: vs.VideoNode, CROP: Crop):
   def cropper(n, clip):
     if n in range(*CROP.animation):
       return crop_21_9(clip)
-    elif n in range(*CROP.stationary):
+    elif CROP.stationary and (n in range(*CROP.stationary)):
       return crop_21_9(clip, CROP.stationary_heights)
     else:
       return clip
