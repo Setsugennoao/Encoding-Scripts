@@ -2,11 +2,11 @@ from typing import List, Union
 
 import vapoursynth as vs
 from vardautomation import (
-  JAPANESE, AudioCutter, AudioStream, BasicTool, Mux,
-  RunnerConfig, SelfRunner, VideoStream, X265Encoder,
-  ChapterStream, FileInfo, Patch, QAACEncoder
+    JAPANESE, EztrimCutter, AudioStream, BasicTool, Mux,
+    RunnerConfig, SelfRunner, VideoStream, X265Encoder,
+    ChapterStream, FileInfo, Patch, QAACEncoder
 )
-from vardautomation.types import Range
+from lvsfunc.types import Range
 
 core = vs.core
 
@@ -19,13 +19,16 @@ class Encoding:
   def __init__(self, file: FileInfo, clip: vs.VideoNode) -> None:
     self.file = file
     self.clip = clip
+
     assert self.file.a_src
 
     self.v_encoder = X265Encoder('mushoku_commons/x265_settings')
+
     self.a_extracters = [
-        BasicTool('eac3to', [self.file.path.to_str(), '2:', self.file.a_src.format(1).to_str(), '-log=NUL'])
+        BasicTool('eac3to', [self.file.path.to_str(), '2:', self.file.a_src.format(track_number=1).to_str(), '-log=NUL'])
     ]
-    self.a_cutters = [AudioCutter(self.file, track=1)]
+
+    self.a_cutters = [EztrimCutter(self.file, track=1)]
     self.a_encoders = [QAACEncoder(self.file, track=1, xml_tag=self.xml_tag)]
 
   def run(self, *, do_chaptering: bool = True) -> None:
