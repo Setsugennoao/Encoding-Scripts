@@ -29,7 +29,7 @@ denoised = join([
 scenefiltered = filterTVTokyo(denoised, bil_downscale, TV_TOKYO_FRAMES)
 
 scenefiltered = filterPreview(scenefiltered, bil_downscale, descale_mask, ED_17_FRAMES)
-1
+
 scenefiltered = filterEnding17(src, scenefiltered, ED_17_FRAMES)
 
 deband = debanding_filter(scenefiltered)

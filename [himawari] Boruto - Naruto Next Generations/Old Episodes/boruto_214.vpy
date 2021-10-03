@@ -7,7 +7,7 @@ from boruto_commons.scenefilter import filterEnding17, filterPreview, filterTVTo
 from boruto_commons.constants import FINAL_GRAIN_AMOUNT, ENCODING_x264_ARGS, TV_TOKYO_FRAMES, ED_17_FRAMES
 from boruto_commons.filtering import knl_filter, descale_denoiseY_filter, debanding_filter, limit_yuv_filter, bil_downscale
 
-ED_17_FRAMES = ED_17_FRAMES[0]
+ED_17_FRAMES = ED_17_FRAMES[5]
 
 core = vs.core
 
@@ -29,7 +29,7 @@ denoised = join([
 scenefiltered = filterTVTokyo(denoised, bil_downscale, TV_TOKYO_FRAMES)
 
 scenefiltered = filterPreview(scenefiltered, bil_downscale, descale_mask, ED_17_FRAMES)
-1
+
 scenefiltered = filterEnding17(src, scenefiltered, ED_17_FRAMES)
 
 deband = debanding_filter(scenefiltered)
