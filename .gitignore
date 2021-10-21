@@ -2,6 +2,7 @@ test*
 *ffindex
 .vspreview
 Kanojo mo Kanojo/kanojo_commons/NCED/__init__.py
+SELECTION PROJECT/Source/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
