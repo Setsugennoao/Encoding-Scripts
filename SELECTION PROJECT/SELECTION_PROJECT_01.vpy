@@ -4,9 +4,9 @@ from vardautomation import FileInfo, PresetAAC, PresetWEB
 from selection_project_commons import SeleProFiltering, Encoding
 
 
-FUNI = FileInfo(r"G:\Il mio Drive\Anime\Settimanali\[SubsPlease] Selection Project - 01 (1080p) [47D622BA].mkv", (240, 0), preset=(PresetWEB, PresetAAC))
+FUNI = FileInfo(r".\Source\[SubsPlease] Selection Project - 01 (1080p) [47D622BA].mkv", (240, 0), preset=(PresetWEB, PresetAAC))
 FUNI.do_qpfile = True
-BILI = FileInfo(r"E:\Desktop\SELECTION PROJECT 01\[NC-Raws] SELECTION PROJECT - 01 [B-Global][WEB-DL][1080p][AVC AAC][ENG_TH_SRT][MKV].mkv", preset=(PresetWEB, PresetAAC))
+BILI = FileInfo(r".\Source\[NC-Raws] SELECTION PROJECT - 01 [B-Global][WEB-DL][1080p][AVC AAC][Multiple Subtitle][MKV].mkv", preset=(PresetWEB))
 
 
 class Filtering(SeleProFiltering):
