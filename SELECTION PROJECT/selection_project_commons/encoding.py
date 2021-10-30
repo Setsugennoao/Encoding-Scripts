@@ -1,11 +1,10 @@
-from typing import List, Union
-
 import vapoursynth as vs
+from lvsfunc.types import Range
+from typing import List, Union, Optional
 from vardautomation import (
     JAPANESE, AudioStream, Mux, RunnerConfig, SelfRunner,
     VideoStream, X265Encoder, FileInfo, Patch
 )
-from lvsfunc.types import Range
 
 core = vs.core
 
@@ -15,10 +14,12 @@ class Encoding:
   xml_tag: str = 'xml_tag.xml'
   do_chaptering: bool
 
-  def __init__(self, file: FileInfo, clip: vs.VideoNode) -> None:
+  def __init__(self, file: FileInfo, clip: vs.VideoNode, prefetch: Optional[int] = None) -> None:
     self.file = file
     self.clip = clip
     self.v_encoder = X265Encoder('selection_project_commons/x265_settings')
+    if prefetch:
+      self.v_encoder.prefetch = prefetch
 
   def run(self, *, do_chaptering: bool = True) -> None:
     assert self.file.a_src, self.file.a_src_cut
