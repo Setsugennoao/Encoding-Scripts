@@ -1,15 +1,19 @@
 import stgfunc as stg
+import lvsfunc as lvf
 import EoEfunc as eoe
+from vsdpir import DPIR
 import vapoursynth as vs
 from stgfunc import depth
+from vsutil import insert_clip
 from debandshit import dumb3kdb
 from lvsfunc.util import get_prop
 from vardautomation import FileInfo
 from vardefunc.noise import Graigasm
 from .constants import graigasm_args
-from typing import Tuple, List, Dict
 from vardefunc.misc import merge_chroma
 from vardefunc.util import finalise_output
+from stgfunc.utils import replace_squaremask
+from typing import Tuple, List, Dict, Optional
 from vsutil import get_y, join, plane, iterate
 
 core = vs.core
@@ -24,9 +28,15 @@ class SeleProFiltering:
   Oycore: stg.oyster.Core
   dfttest_args: Dict[str, int]
 
-  def __init__(self, FUNI: FileInfo, BILI: FileInfo):
+  def __init__(
+      self, FUNI: FileInfo, BILI: FileInfo,
+      OP_ED: Optional[Tuple[Optional[Tuple[int, int]], Optional[Tuple[int, int]]]] = None,
+      OP_START_FILTERING: bool = True
+  ):
     self.FUNI = FUNI
     self.BILI = BILI
+    self.OP_ED = OP_ED
+    self.OP_START_FILTERING = OP_START_FILTERING
 
   @finalise_output()
   def workraw_filterchain(self):
@@ -43,6 +53,10 @@ class SeleProFiltering:
   @finalise_output()
   def filterchain(self):
     self.mix_sources()
+
+    if self.OP_ED:
+      self.mix_OP_ED(self.FUNI)
+      self.mix_OP_ED(self.BILI)
 
     y = depth(get_y(self.FUNI.clip_cut), 16)
 
@@ -69,7 +83,10 @@ class SeleProFiltering:
 
     denoise = self.__denoise(merge)
 
-    custom = self.custom_scenefiltering(denoise)
+    if self.OP_ED:
+      denoise = self.__scenefilter_OP_ED(denoise)
+
+    custom = self.custom_scenefiltering(denoise, merge)
 
     grain = self.__graining(custom, detail_mask2)
 
@@ -78,8 +95,32 @@ class SeleProFiltering:
   def mix_sources(self) -> None:
     pass
 
-  def custom_scenefiltering(self, clip: vs.VideoNode):
-    return clip
+  def mix_OP_ED(self, file: FileInfo) -> None:
+    if self.OP_ED[0]:
+      OP_AV1 = stg.src(r".\Extra\NCOP\SELECTION PROJECT OPテーマ 「Glorious Days」_AV1.mp4", ref=file.clip_cut)[:2158]
+      OP_START, OP_ENDIN = self.OP_ED[0]
+
+      texture = OP_AV1.grain.Add(20, 3, 0.07, 0.12, 69420, True).bilateral.Gaussian(1)
+
+      merge = file.clip_cut[OP_START:OP_ENDIN + 1]
+
+      if self.OP_START_FILTERING:
+        deband = OP_AV1.bilateral.Gaussian(1.5)
+        merge = replace_squaremask(merge, deband, (727, 50, 599, 516), (None, 195))
+
+      merge = replace_squaremask(merge, texture, (993, 50, 464, 516), (2042, None))
+      merge = replace_squaremask(merge, OP_AV1, (624, 50, 833, 516), (2042, None))
+
+      black = merge.std.BlankClip(length=1)
+      white = black.std.Invert()
+
+      merge = ((black + merge[1:195]) if self.OP_START_FILTERING else merge[:195]) + white + merge[196:2041] + white + merge[2042:]
+
+      file.clip_cut = insert_clip(file.clip_cut, merge, OP_START)
+      file.clip_cut = lvf.rfs(file.clip_cut, self.FUNI.clip_cut, (OP_START, OP_START + 56))
+
+  def custom_scenefiltering(self, denoise: vs.VideoNode, merge: vs.VideoNode):
+    return denoise
 
   def __setup_oyster(self, y: vs.VideoNode, chroma: vs.VideoNode) -> None:
     self.Oycore = stg.oyster.Core()
@@ -200,6 +241,19 @@ class SeleProFiltering:
         denoise_bm3d, sigma=[None, 0.37],
         contraSharpening=True, ref_clip=clip
     )
+
+  def __scenefilter_OP_ED(self, clip: vs.VideoNode) -> vs.VideoNode:
+    if self.OP_ED[0]:
+      OP_START, OP_ENDIN = self.OP_ED[0]
+
+      deband = dumb3kdb(
+          DPIR(
+              depth(clip.resize.Spline64(format=vs.RGB24, matrix_in=1), 32), 4.35
+          ).resize.Spline64(format=clip.format.id, matrix=1), 16, 12
+      )
+
+      return lvf.rfs(clip, deband, (OP_START + 1, OP_START + 56))
+    return clip
 
   def __graining(self, clip: vs.VideoNode, detail_mask: vs.VideoNode) -> vs.VideoNode:
     grain_mask = core.adg.Mask(clip.std.PlaneStats(), 8)
