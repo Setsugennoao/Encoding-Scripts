@@ -12,7 +12,7 @@ core = vs.core
 core.max_cache_size = 16 * 2 ** 10
 
 
-class KyoNoAquaaFiltering:
+class KyouNoAquaaFiltering:
   YOUTUBE: FileInfo
 
   def __init__(self, YOUTUBE: FileInfo):
