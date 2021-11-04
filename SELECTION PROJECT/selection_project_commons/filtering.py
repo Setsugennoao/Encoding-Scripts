@@ -119,6 +119,13 @@ class SeleProFiltering:
       file.clip_cut = insert_clip(file.clip_cut, merge, OP_START)
       file.clip_cut = lvf.rfs(file.clip_cut, self.FUNI.clip_cut, (OP_START, OP_START + 56))
 
+    if self.OP_ED[1]:
+      ED_START, ED_ENDIN = self.OP_ED[1]
+      ED_VP9 = stg.src(r".\Extra\NCED\SELECTION PROJECT EDテーマ 「Only One Yell」_VP9.webm", ref=file.clip_cut)
+
+      merge = replace_squaremask(file.clip_cut[ED_START:ED_ENDIN + 1], ED_VP9, (993, 50, 464, 516), (1791, None))
+      file.clip_cut = insert_clip(file.clip_cut, merge, ED_START)
+
   def custom_scenefiltering(self, denoise: vs.VideoNode, merge: vs.VideoNode):
     return denoise
 
