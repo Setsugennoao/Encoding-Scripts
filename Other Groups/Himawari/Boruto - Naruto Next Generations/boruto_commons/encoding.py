@@ -15,9 +15,10 @@ class Encoding:
       self.v_encoder.prefetch = prefetch
 
   def run(self, *, do_chaptering: bool = True) -> None:
+    self.file.name_clip_output = get_final_filename(self.file.path)
+
     config = RunnerConfig(self.v_encoder, None, None, None, None, None)
 
     runner = SelfRunner(self.clip, self.file, config)
 
-    runner.rename_final_file(get_final_filename(self.file.path))
     runner.run()

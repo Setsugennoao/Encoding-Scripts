@@ -2,16 +2,17 @@ import inspect
 import muvsfunc as mvsf
 import vapoursynth as vs
 from vsutil import depth
-from typing import Tuple
 from pathlib import Path
+from typing import Tuple, Union
+from vardautomation import VPath
 
 
-def get_filenames(filename: str) -> Tuple[str, str]:
-  return rf"{filename.replace('.mkv', '_sc.log')}", str(get_final_filename(filename))
+def get_filenames(filename: Union[str, Path]) -> Tuple[str, str]:
+  return rf"{str(filename).replace('.mkv', '_sc.log')}", str(get_final_filename(filename))
 
 
-def get_final_filename(filename: str) -> Tuple[str, str]:
-  return Path(filename.replace('.mkv', '_premux.mkv'))
+def get_final_filename(filename: Union[str, Path]) -> VPath:
+  return VPath(str(filename).replace('.mkv', '_premux.264'))
 
 
 # 190~205
