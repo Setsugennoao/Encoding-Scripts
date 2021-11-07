@@ -83,6 +83,21 @@ def filterEnding17(src: vs.VideoNode, clip: vs.VideoNode, ED_FRAMES: Tuple[int, 
   return insert_clip(clip, edgefixed, ED_FRAMES[0])
 
 
+def filterEnding18(src: vs.VideoNode, clip: vs.VideoNode, ED_FRAMES: Tuple[int, int]) -> vs.VideoNode:
+  ending = src[ED_FRAMES[0]:ED_FRAMES[1] + 1]
+  yuv_444 = mvsf.SSIM_downsample(ending, 1280, 720, 0, kernel='Spline64', format=vs.YUV444P16)
+
+  denoise_y = eoe.denoise.BM3D(yuv_444, 0.45, 1, 'high', chroma=False)
+
+  denoised = stg.denoise.KNLMeansCL(denoise_y, 1, 2, 8, [None, 0.84], True, yuv_444)
+
+  edgefixed = awsf.bbmod(denoised, 1, 1)
+  edgefixed = awsf.bbmod(edgefixed, 0, 0, 1, 1)
+  edgefixed = awsf.bbmod(edgefixed, 2, 2, 2, 2)
+
+  return insert_clip(clip, edgefixed, ED_FRAMES[0])
+
+
 def filterTVTokyo(clip: vs.VideoNode, bil_downscale: vs.VideoNode, TV_TOKYO_FRAMES: Tuple[int, int]) -> vs.VideoNode:
   s = TV_TOKYO_FRAMES[0]
 

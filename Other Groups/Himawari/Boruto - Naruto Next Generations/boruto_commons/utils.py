@@ -11,7 +11,7 @@ def get_filenames(filename: str) -> Tuple[str, str]:
 
 
 def get_final_filename(filename: str) -> Tuple[str, str]:
-  return Path(rf"{filename.replace('.mkv', '_premux.mkv')}")
+  return Path(filename.replace('.mkv', '_premux.mkv'))
 
 
 # 190~205
