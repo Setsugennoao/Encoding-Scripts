@@ -1,0 +1,10 @@
+-o {clip_output:s} - --y4m
+--preset placebo
+--frames {frames:d} --fps {fps_num:d}/{fps_den:d} --output-depth {bits:d}
+--aq-mode 3 --aq-strength 0.5 -qcomp 0.75 --bframes 16
+--ipratio 1.2 --pbratio 1.1 --rc-lookahead 48 --ref 8
+--deblock=-2:-2 --no-sao --no-sao-non-deblock
+--rd 3 --rskip 0 --subme 5
+--crf 10 --psy-rd 0.4,0.0 --no-open-gop --keyint 240 --min-keyint 24 --scenecut 40 
+--videoformat ntsc --output-csp i444 --level 4.1 --profile high444
+--sar 1 --range limited --colorprim 1 --transfer 1 --colormatrix 1 --min-luma {min_luma:d} --max-luma {max_luma:d}
