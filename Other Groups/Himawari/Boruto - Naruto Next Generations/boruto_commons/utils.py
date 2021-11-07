@@ -3,10 +3,15 @@ import muvsfunc as mvsf
 import vapoursynth as vs
 from vsutil import depth
 from typing import Tuple
+from pathlib import Path
 
 
 def get_filenames(filename: str) -> Tuple[str, str]:
-  return rf"{filename.replace('.mkv', '_sc.log')}", rf"{filename.replace('.mkv', '_premux.mkv')}"
+  return rf"{filename.replace('.mkv', '_sc.log')}", str(get_final_filename(filename))
+
+
+def get_final_filename(filename: str) -> Tuple[str, str]:
+  return Path(rf"{filename.replace('.mkv', '_premux.mkv')}")
 
 
 # 190~205

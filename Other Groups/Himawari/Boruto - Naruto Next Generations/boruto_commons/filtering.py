@@ -2,11 +2,11 @@ import stgfunc as stg
 import lvsfunc as lvf
 import EoEfunc as eoe
 import awsmfunc as awsf
-import vardefunc as vdf
 import vapoursynth as vs
 from vsutil import get_y, depth
 from typing import Literal, Tuple
 from .constants import desc_w, desc_h, kernel
+from debandshit import placebo_deband, dumb3kdb
 
 core = vs.core
 
@@ -46,9 +46,9 @@ def knl_filter(clip: vs.VideoNode, planes: Literal['Y', 'UV']) -> vs.VideoNode:
 def debanding_filter(clip: vs.VideoNode) -> vs.VideoNode:
   return core.f3kdb.Deband(
       core.average.Mean([
-          vdf.deband.dumb3kdb(clip, 8, 25),
-          vdf.placebo.deband(clip, 16, 3, 1, 0),
-          vdf.placebo.deband(clip, 24, 4, 1, 0),
+          dumb3kdb(clip, 8, 25),
+          placebo_deband(clip, 16, 3, 1, 0),
+          placebo_deband(clip, 24, 4, 1, 0),
       ]), 16, 0, 0, 0, 16, 16
   )
 

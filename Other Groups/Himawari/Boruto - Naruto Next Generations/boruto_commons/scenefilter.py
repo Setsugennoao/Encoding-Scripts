@@ -1,11 +1,11 @@
 import numpy as np
 import stgfunc as stg
 import lvsfunc as lvf
-import mvsfunc as mvf
 import EoEfunc as eoe
 import awsmfunc as awsf
 import muvsfunc as mvsf
 import vardefunc as vdf
+from vsdpir import DPIR
 import vapoursynth as vs
 from typing import Tuple
 from vsutil import plane, insert_clip
@@ -84,11 +84,15 @@ def filterEnding17(src: vs.VideoNode, clip: vs.VideoNode, ED_FRAMES: Tuple[int, 
 
 
 def filterTVTokyo(clip: vs.VideoNode, bil_downscale: vs.VideoNode, TV_TOKYO_FRAMES: Tuple[int, int]) -> vs.VideoNode:
-  return lvf.rfs(
-      clip,
-      mvf.ToYUV(mvf.ToRGB(bil_downscale, depth=32).vsdpir.Denoise(5, 1, 0, 0), depth=16),
-      TV_TOKYO_FRAMES
-  )
+  s = TV_TOKYO_FRAMES[0]
+
+  tvtokyo = bil_downscale[s + 17] + bil_downscale[s + 17: s + 37]
+
+  tvtokyo_filt = DPIR(tvtokyo.resize.Bicubic(format=vs.RGBS, matrix_in=1), 5, device_type='cpu').resize.Bicubic(format=vs.YUV444P16, matrix=1)
+
+  tvtokyo_filt = (tvtokyo_filt[0] * 17) + tvtokyo_filt[1:-1] + (tvtokyo_filt[-1] * (TV_TOKYO_FRAMES[1] - 37))
+
+  return insert_clip(clip, tvtokyo_filt, TV_TOKYO_FRAMES[0])
 
 
 def filterPreview(clip: vs.VideoNode, replace: vs.VideoNode, descale_mask: vs.VideoNode, ED_FRAMES: Tuple[int, int]) -> vs.VideoNode:
