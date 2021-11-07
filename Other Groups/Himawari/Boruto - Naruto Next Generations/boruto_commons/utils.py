@@ -27,4 +27,4 @@ def get_default_path(filename: str = None):
   if filename is None:
     filename = inspect.stack()[1].filename
   ep_num = get_ep_number(filename)
-  return fr"G:\Drive condivisi\Fansub\_Other\[himawari] Boruto - Naruto Next Generations\{ep_num}\[Crunchyroll] Boruto - Naruto Next Generations - {ep_num} (1080p).mkv"
+  return r"G:\Drive condivisi\Fansub\_Other\[himawari] Boruto - Naruto Next Generations\%s\[Crunchyroll] Boruto - Naruto Next Generations - %s (1080p).mkv" % (ep_num, ep_num)
