@@ -8,6 +8,7 @@ from vsutil import insert_clip
 from debandshit import dumb3kdb
 from lvsfunc.util import get_prop
 from vardautomation import FileInfo
+from vardautomation import PresetWEB
 from vardefunc.noise import Graigasm
 from .constants import graigasm_args
 from vardefunc.misc import merge_chroma
@@ -31,12 +32,12 @@ class SeleProFiltering:
   def __init__(
       self, FUNI: FileInfo, BILI: FileInfo,
       OP_ED: Optional[Tuple[Optional[Tuple[int, int]], Optional[Tuple[int, int]]]] = None,
-      OP_START_FILTERING: bool = True
+      OP_START_REPLACE: bool = False
   ):
     self.FUNI = FUNI
     self.BILI = BILI
     self.OP_ED = OP_ED
-    self.OP_START_FILTERING = OP_START_FILTERING
+    self.OP_START_REPLACE = OP_START_REPLACE
 
   @finalise_output()
   def workraw_filterchain(self):
@@ -104,9 +105,15 @@ class SeleProFiltering:
 
       merge = file.clip_cut[OP_START:OP_ENDIN + 1]
 
-      if self.OP_START_FILTERING:
-        deband = OP_AV1.bilateral.Gaussian(1.5)
-        merge = replace_squaremask(merge, deband, (727, 50, 599, 516), (None, 195))
+      if self.OP_START_REPLACE:
+        FUNI03 = FileInfo(r".\Source\[SubsPlease] Selection Project - 03 (1080p) [4C3303CD].mkv", (240, 0), preset=PresetWEB)
+
+        OP_EP03 = FUNI03.clip_cut[480:2637 + 1][0:195 + 1]
+
+        merge = insert_clip(merge, OP_EP03, 0)
+
+      deband = OP_AV1.bilateral.Gaussian(1.5)
+      merge = replace_squaremask(merge, deband, (727, 50, 599, 516), (None, 195))
 
       merge = replace_squaremask(merge, texture, (993, 50, 464, 516), (2042, None))
       merge = replace_squaremask(merge, OP_AV1, (624, 50, 833, 516), (2042, None))
@@ -114,7 +121,7 @@ class SeleProFiltering:
       black = merge.std.BlankClip(length=1)
       white = black.std.Invert()
 
-      merge = ((black + merge[1:195]) if self.OP_START_FILTERING else merge[:195]) + white + merge[196:2041] + white + merge[2042:]
+      merge = black + merge[1:195] + white + merge[196:2041] + white + merge[2042:]
 
       file.clip_cut = insert_clip(file.clip_cut, merge, OP_START)
       file.clip_cut = lvf.rfs(file.clip_cut, self.FUNI.clip_cut, (OP_START, OP_START + 56))
@@ -123,7 +130,12 @@ class SeleProFiltering:
       ED_START, ED_ENDIN = self.OP_ED[1]
       ED_VP9 = stg.src(r".\Extra\NCED\SELECTION PROJECT EDテーマ 「Only One Yell」_VP9.webm", ref=file.clip_cut)
 
-      merge = replace_squaremask(file.clip_cut[ED_START:ED_ENDIN + 1], ED_VP9, (993, 50, 464, 516), (1791, None))
+      ED_CUT = file.clip_cut[ED_START:ED_ENDIN + 1]
+
+      while ED_VP9.num_frames == ED_CUT.num_frames:
+        ED_VP9 += ED_VP9[-1]
+
+      merge = replace_squaremask(ED_CUT, ED_VP9, (993, 50, 464, 516), (1791, None))
       file.clip_cut = insert_clip(file.clip_cut, merge, ED_START)
 
   def custom_scenefiltering(self, denoise: vs.VideoNode, merge: vs.VideoNode):
