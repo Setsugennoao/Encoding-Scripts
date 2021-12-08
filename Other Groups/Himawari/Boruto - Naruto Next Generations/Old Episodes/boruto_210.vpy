@@ -1,19 +1,27 @@
 import stgfunc as stg
+import lvsfunc as lvf
 import kagefunc as kgf
 import vapoursynth as vs
+from vardautomation import FileInfo
 from vsutil import plane, depth, join
-from boruto_commons.utils import resize_ssim, get_default_path, get_filenames
-from boruto_commons.scenefilter import filterEnding17, filterPreview, filterTVTokyo
-from boruto_commons.constants import FINAL_GRAIN_AMOUNT, ENCODING_x264_ARGS, TV_TOKYO_FRAMES
+from boruto_commons.encoding import Encoding
+from boruto_commons.utils import resize_ssim, get_default_path
+from boruto_commons.constants import FINAL_GRAIN_AMOUNT, TV_TOKYO_FRAMES
+from boruto_commons.scenefilter import filterPreview, filterEnding17, filterTVTokyo
 from boruto_commons.filtering import knl_filter, descale_denoiseY_filter, debanding_filter, limit_yuv_filter, bil_downscale
 
 ED_17_FRAMES = (31505, 33661)
 
 core = vs.core
 
-filename = get_default_path(__file__)
+CRUNCHY = FileInfo(get_default_path(__file__))
 
-src = stg.src(filename, 16, matrix_prop=1)
+src = depth(CRUNCHY.clip_cut, 16)
+
+src = src = lvf.rfs(src, core.std.StackVertical([
+    src[34372].std.Crop(0, 0, 0, src.height - 2),
+    src.std.Crop(0, 0, 0, 2)
+]), (34373, 34376))
 
 denoised_y, descale_mask = descale_denoiseY_filter(src)
 bil_downscale = bil_downscale(src)
@@ -39,10 +47,8 @@ grain = depth(grain, 10)
 grain = limit_yuv_filter(grain)
 
 if __name__ == '__main__':
-  qpfilename, outfilename = get_filenames(filename)
-
-  stg.encode.create_qpfile(src, qpfilename)
-  stg.encode.encode(grain, outfilename, False, [], **ENCODING_x264_ARGS(qpfilename))
+  brrr = Encoding(CRUNCHY, grain)
+  brrr.run()
 elif __name__ == '__vapoursynth__':
   grain.set_output()
 else:
