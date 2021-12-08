@@ -5,6 +5,6 @@
 --rd 3 --rskip 0 --subme 5
 --no-strong-intra-smoothing
 --psy-rd 2.15 --psy-rdoq 2.5 --no-open-gop --keyint 240 --min-keyint 24 --scenecut 40 --bframes 16
---crf 16.35 --aq-mode 3 --aq-strength 0.85 --no-cutree --cbqpoffs -2 --crqpoffs -2 --qcomp 0.7
+--crf 17.25 --aq-mode 3 --aq-strength 0.85 --no-cutree --cbqpoffs -2 --crqpoffs -2 --qcomp 0.7
 --deblock=-2:-2 --no-sao --no-sao-non-deblock
 --sar 1 --range limited --colorprim 1 --transfer 1 --colormatrix 1 --min-luma {min_luma:d} --max-luma {max_luma:d}
