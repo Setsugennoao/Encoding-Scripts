@@ -18,6 +18,7 @@ class Encoding:
     self.file = file
     self.clip = clip
     self.v_encoder = X265Encoder('selection_project_commons/x265_settings')
+    self.file.set_name_clip_output_ext('.265')
     if prefetch:
       self.v_encoder.prefetch = prefetch
 
