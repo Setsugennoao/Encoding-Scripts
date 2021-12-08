@@ -12,7 +12,6 @@ from selection_project_commons import SeleProFiltering, Encoding
 core = vs.core
 
 FUNI = FileInfo(r".\Source\[SubsPlease] Selection Project - 02 (1080p) [C5DD71E5].mkv", (240, 0), preset=(PresetWEB, PresetAAC))
-FUNI.do_qpfile = True
 BILI = FileInfo(r".\Source\[NC-Raws] SELECTION PROJECT - 02 [B-Global][WEB-DL][1080p][AVC AAC][Multiple Subtitle][MKV].mkv", preset=(PresetWEB))
 
 
