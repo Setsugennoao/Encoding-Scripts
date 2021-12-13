@@ -23,7 +23,7 @@ class Encoding:
     assert self.file.a_src
 
     self.v_encoder = X265Encoder('overdress_commons/x265_settings')
-
+    self.file.set_name_clip_output_ext('.265')
     self.a_extracters = [
         BasicTool('eac3to', [self.file.path.to_str(), '2:', self.file.a_src.format(track_number=1).to_str(), '-log=NUL'])
     ]
