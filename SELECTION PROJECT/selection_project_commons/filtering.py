@@ -98,7 +98,7 @@ class SeleProFiltering:
 
   def mix_OP_ED(self, file: FileInfo) -> None:
     if self.OP_ED[0]:
-      OP_AV1 = stg.src(r".\Extra\NCOP\SELECTION PROJECT OPテーマ 「Glorious Days」_AV1.mp4", ref=file.clip_cut)[:2158]
+      OP_AV1 = stg.src(r".\Extra\NCs\Source\SELECTION PROJECT OPテーマ 「Glorious Days」_AV1.mp4", ref=file.clip_cut)[:2158]
       OP_START, OP_ENDIN = self.OP_ED[0]
 
       texture = OP_AV1.grain.Add(20, 3, 0.07, 0.12, 69420, True).bilateral.Gaussian(1)
@@ -128,7 +128,7 @@ class SeleProFiltering:
 
     if self.OP_ED[1]:
       ED_START, ED_ENDIN = self.OP_ED[1]
-      ED_VP9 = stg.src(r".\Extra\NCED\SELECTION PROJECT EDテーマ 「Only One Yell」_VP9.webm", ref=file.clip_cut)
+      ED_VP9 = stg.src(r".\Extra\NCs\Source\SELECTION PROJECT EDテーマ 「Only One Yell」_VP9.webm", ref=file.clip_cut)
 
       ED_CUT = file.clip_cut[ED_START:ED_ENDIN + 1]
 
