@@ -2,5 +2,6 @@
   "python.analysis.extraPaths": ["./Kanojo mo Kanojo", "./D4DJ Petit Mix", "./Okashi Na Sabaku no Suna to Manu", "./[himawari] Boruto - Naruto Next Generations"],
   "python.linting.flake8Enabled": true,
   "python.linting.pylintEnabled": false,
-  "python.linting.enabled": true
+  "python.linting.enabled": true,
+  "python.formatting.provider": "autopep8"
 }
