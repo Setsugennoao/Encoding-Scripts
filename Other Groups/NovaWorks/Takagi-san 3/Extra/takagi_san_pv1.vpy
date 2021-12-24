@@ -10,7 +10,7 @@ from vardefunc.noise import Graigasm, AddGrain
 from vsutil import get_y, iterate, depth, get_w
 from debandshit import dumb3kdb, placebo_deband
 from stgfunc.fades import fade_in, QuadEaseOut, QuinticEaseOut
-from vardautomation import RunnerConfig, SelfRunner, X265Encoder, FileInfo, PresetWEB
+from vardautomation import RunnerConfig, SelfRunner, x265, FileInfo, PresetWEB
 
 core = vs.core
 
@@ -75,9 +75,9 @@ pixels_y = 54
 pixels_x = get_w(54)
 
 to_zoom = pan.resize.Bicubic(
-  src_BD.width * 2 + pixels_x * 2,
-  src_BD.height * 2 + pixels_y * 2,
-  format=vs.YUV444P16
+    src_BD.width * 2 + pixels_x * 2,
+    src_BD.height * 2 + pixels_y * 2,
+    format=vs.YUV444P16
 )
 
 x_crop = QuadEaseOut(0, pixels_x, pan.num_frames)
@@ -120,12 +120,12 @@ grain = Graigasm(
 grain = depth(grain, 10).std.Limiter(16 << 2, [235 << 2, 240 << 2], [0, 1, 2])
 
 if __name__ == "__main__":
-    encoder = X265Encoder("x265_settings")
-    encoder.prefetch = 1
+  encoder = x265("x265_settings")
+  encoder.prefetch = 1
 
-    fileinfo.name_clip_output = fileinfo.workdir / 'takagi_san_3_pv01.265'
+  fileinfo.name_clip_output = fileinfo.workdir / 'takagi_san_3_pv01.265'
 
-    SelfRunner(grain, fileinfo, RunnerConfig(encoder)).run()
+  SelfRunner(grain, fileinfo, RunnerConfig(encoder)).run()
 else:
   stg.output(src_AV1)
   stg.output(grain)

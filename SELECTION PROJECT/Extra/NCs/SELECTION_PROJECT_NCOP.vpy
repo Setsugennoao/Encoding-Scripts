@@ -9,7 +9,7 @@ from vsutil import get_y, depth, iterate
 from stgfunc.utils import replace_squaremask
 from vardefunc.noise import Graigasm, AddGrain
 from debandshit import dumb3kdb, placebo_deband
-from vardautomation import FileInfo, SelfRunner, X265Encoder, RunnerConfig
+from vardautomation import FileInfo, SelfRunner, x265, RunnerConfig
 
 from selepro_ncs_commons.masking import getCreditMask
 from selepro_ncs_commons.filtering import masked_f3kdb
@@ -338,10 +338,10 @@ grain = Graigasm(
 ).graining(deband, prefilter=pref)
 
 heavy_grain_params = dict(
-  thrs=[x << 8 for x in (50, 90, 135)],
-  strengths=[(1.4, 0.2), (1.27, 0.12), (1.12, 0)],
-  sizes=(3, 2.58, 2.1),
-  sharps=(70, 85, 55)
+    thrs=[x << 8 for x in (50, 90, 135)],
+    strengths=[(1.4, 0.2), (1.27, 0.12), (1.12, 0)],
+    sizes=(3, 2.58, 2.1),
+    sharps=(70, 85, 55)
 )
 
 heavy_grain = Graigasm(
@@ -373,7 +373,7 @@ grain = fade(grain, heavy_static_grain, False, 1301, 1304)
 grain = depth(grain, 10).std.Limiter(16 << 2, [235 << 2, 240 << 2], [0, 1, 2])
 
 if __name__ == "__main__":
-  encoder = X265Encoder("x265_settings_NCOP")
+  encoder = x265("x265_settings_NCOP")
 
   fileinfo.name_clip_output = fileinfo.workdir / 'SELEPRO_NCOP_v1.265'
 
