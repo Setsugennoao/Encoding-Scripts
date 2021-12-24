@@ -18,10 +18,12 @@ CRUNCHY = FileInfo(get_default_path(__file__))
 
 src = depth(CRUNCHY.clip_cut, 16)
 
-src = src = lvf.rfs(src, core.std.StackVertical([
+src = lvf.rfs(src, core.std.StackVertical([
     src[34372].std.Crop(0, 0, 0, src.height - 2),
     src.std.Crop(0, 0, 0, 2)
 ]), (34373, 34376))
+
+src = lvf.rfs(src, core.average.Mean([src[22842], src[22844]]) * src.num_frames, 22843)
 
 denoised_y, descale_mask = descale_denoiseY_filter(src)
 bil_downscale = bil_downscale(src)
