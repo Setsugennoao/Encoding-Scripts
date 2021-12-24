@@ -10,7 +10,7 @@ from vardefunc.noise import Graigasm, AddGrain
 from vsutil import get_y, iterate, depth, get_w
 from debandshit import dumb3kdb, placebo_deband
 from stgfunc.fades import fade_in, QuadEaseOut, QuinticEaseOut
-from vardautomation import RunnerConfig, SelfRunner, x265, FileInfo, PresetWEB
+from vardautomation import RunnerConfig, SelfRunner, X265, FileInfo, PresetWEB
 
 core = vs.core
 
@@ -120,7 +120,7 @@ grain = Graigasm(
 grain = depth(grain, 10).std.Limiter(16 << 2, [235 << 2, 240 << 2], [0, 1, 2])
 
 if __name__ == "__main__":
-  encoder = x265("x265_settings")
+  encoder = X265("x265_settings")
   encoder.prefetch = 1
 
   fileinfo.name_clip_output = fileinfo.workdir / 'takagi_san_3_pv01.265'

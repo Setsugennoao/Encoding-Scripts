@@ -9,7 +9,7 @@ from vsutil import get_y, depth, iterate
 from stgfunc.utils import replace_squaremask
 from vardefunc.noise import Graigasm, AddGrain
 from debandshit import dumb3kdb, placebo_deband
-from vardautomation import FileInfo, SelfRunner, x265, RunnerConfig
+from vardautomation import FileInfo, SelfRunner, X265, RunnerConfig
 
 from selepro_ncs_commons.masking import getCreditMask
 from selepro_ncs_commons.filtering import masked_f3kdb
@@ -373,7 +373,7 @@ grain = fade(grain, heavy_static_grain, False, 1301, 1304)
 grain = depth(grain, 10).std.Limiter(16 << 2, [235 << 2, 240 << 2], [0, 1, 2])
 
 if __name__ == "__main__":
-  encoder = x265("x265_settings_NCOP")
+  encoder = X265("x265_settings_NCOP")
 
   fileinfo.name_clip_output = fileinfo.workdir / 'SELEPRO_NCOP_v1.265'
 

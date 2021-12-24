@@ -3,7 +3,7 @@ from typing import List, Union
 import vapoursynth as vs
 from vardautomation import (
     JAPANESE, EztrimCutter, AudioStream, BasicTool, Mux,
-    RunnerConfig, SelfRunner, VideoStream, x265,
+    RunnerConfig, SelfRunner, VideoStream, X265,
     ChapterStream, FileInfo, Patch, QAACEncoder
 )
 from lvsfunc.types import Range
@@ -22,7 +22,7 @@ class Encoding:
 
     assert self.file.a_src
 
-    self.v_encoder = x265('overdress_commons/x265_settings')
+    self.v_encoder = X265('overdress_commons/x265_settings')
     self.file.set_name_clip_output_ext('.265')
     self.a_extracters = [
         BasicTool('eac3to', [self.file.path.to_str(), '2:', self.file.a_src.format(track_number=1).to_str(), '-log=NUL'])

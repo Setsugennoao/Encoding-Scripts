@@ -3,7 +3,7 @@ from lvsfunc.types import Range
 from typing import List, Union, Optional
 from vardautomation import (
     JAPANESE, AudioStream, Mux, RunnerConfig, SelfRunner,
-    VideoStream, x265, FileInfo, Patch
+    VideoStream, X265, FileInfo, Patch
 )
 
 core = vs.core
@@ -17,7 +17,7 @@ class Encoding:
   def __init__(self, file: FileInfo, clip: vs.VideoNode, prefetch: Optional[int] = None) -> None:
     self.file = file
     self.clip = clip
-    self.v_encoder = x265('selection_project_commons/x265_settings')
+    self.v_encoder = X265('selection_project_commons/x265_settings')
     self.file.set_name_clip_output_ext('.265')
     if prefetch:
       self.v_encoder.prefetch = prefetch

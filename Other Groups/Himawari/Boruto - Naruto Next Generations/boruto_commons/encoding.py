@@ -1,7 +1,7 @@
 import vapoursynth as vs
 from typing import Optional
 from .utils import get_final_filename
-from vardautomation import RunnerConfig, SelfRunner, x264, FileInfo
+from vardautomation import RunnerConfig, SelfRunner, X264, FileInfo
 
 core = vs.core
 
@@ -10,7 +10,7 @@ class Encoding:
   def __init__(self, file: FileInfo, clip: vs.VideoNode, prefetch: Optional[int] = None) -> None:
     self.file = file
     self.clip = clip
-    self.v_encoder = x264('boruto_commons/x264_settings')
+    self.v_encoder = X264('boruto_commons/x264_settings')
     if prefetch:
       self.v_encoder.prefetch = prefetch
 

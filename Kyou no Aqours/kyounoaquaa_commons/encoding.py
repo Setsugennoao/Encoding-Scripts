@@ -2,7 +2,7 @@ import vapoursynth as vs
 from typing import Optional
 from vardautomation import (
     JAPANESE, AudioStream, Mux, RunnerConfig,
-    SelfRunner, VideoStream, x265, FileInfo
+    SelfRunner, VideoStream, X265, FileInfo
 )
 
 core = vs.core
@@ -14,7 +14,7 @@ class Encoding:
   def __init__(self, file: FileInfo, clip: vs.VideoNode, prefetch: Optional[int] = None) -> None:
     self.file = file
     self.clip = clip
-    self.v_encoder = x265('kyonoaquaa_commons/x265_settings')
+    self.v_encoder = X265('kyonoaquaa_commons/x265_settings')
     if prefetch:
       self.v_encoder.prefetch = prefetch
 
