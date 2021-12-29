@@ -1,0 +1,12 @@
+-o {clip_output:s} - --y4m
+--csv {filename:s}_log_x265.csv --csv-log-level 2
+--preset placebo
+--frames {frames:d} --fps {fps_num:d}/{fps_den:d} --output-depth {bits:d}
+--keyint 240 --min-keyint 24 --rc-lookahead 60 --bframes 16
+--no-rect --no-amp --no-cutree --no-open-gop --tskip --rc-grain
+--rd 5 --rskip 2 --tu-intra-depth 3 --tu-inter-depth 3
+--merange 48 --subme 5 --me full
+--crf 15 --aq-mode 3 --aq-strength 0.62 --cbqpoffs 2 --crqpoffs 2 --qcomp 0.75
+--psy-rd 2.25 --psy-rdoq 2.5
+--deblock=-2:-2 --no-sao --no-sao-non-deblock --no-strong-intra-smoothing
+--sar 1 --range limited --colorprim 1 --transfer 1 --colormatrix 1 --min-luma {min_luma:d} --max-luma {max_luma:d}
