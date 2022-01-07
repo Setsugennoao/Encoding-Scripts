@@ -4,6 +4,7 @@ test*
 Kanojo mo Kanojo (WEB)/kanojo_commons/NCED/*
 
 **/Source/*
+**/batch.bat
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
