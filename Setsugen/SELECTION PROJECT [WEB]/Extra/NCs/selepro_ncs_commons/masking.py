@@ -38,26 +38,3 @@ def detail_mask(
   merged = core.std.Expr([blur_ret_brz, prewitt_brz], "x y +")
   rm_grain = core.rgvs.RemoveGrain(merged, rg_mode)
   return rm_grain if bits == 16 else depth(rm_grain, bits)
-
-
-def getCreditMask(
-    clip: vs.VideoNode, ref: vs.VideoNode, thr: int,
-    blur: Optional[int] = 1.65, prefilter: bool = True
-) -> vs.VideoNode:
-  if blur is None or blur <= 0:
-    blur_src, blur_ref = clip, ref
-  else:
-    blur_src = clip.bilateral.Gaussian(blur)
-    blur_ref = ref.bilateral.Gaussian(blur)
-
-  ed_mask = vdf.dcm(
-      blur_src[0] + blur_src, blur_src, blur_ref,
-      start_frame=0, thr=thr << 8, prefilter=prefilter
-  )
-
-  credit_mask = depth(ed_mask, 16)
-  credit_mask = iterate(credit_mask, core.std.Minimum, 6)
-  credit_mask = iterate(credit_mask, lambda x: x.std.Minimum().std.Maximum(), 8)
-  credit_mask = iterate(credit_mask, core.std.Maximum, 8)
-
-  return credit_mask.std.Inflate().std.Inflate().std.Inflate()

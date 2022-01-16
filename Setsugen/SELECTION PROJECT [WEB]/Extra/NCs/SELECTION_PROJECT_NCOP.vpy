@@ -5,15 +5,14 @@ import kagefunc as kgf
 import havsfunc as haf
 import vapoursynth as vs
 from stgfunc.fades import fade
+from stgfunc.mask import getCreditMask
 from vsutil import get_y, depth, iterate
-from stgfunc.utils import replace_squaremask
 from vardefunc.noise import Graigasm, AddGrain
 from debandshit import dumb3kdb, placebo_deband
+from stgfunc.utils import replace_squaremask, freeze_replace_mask
 from vardautomation import FileInfo, SelfRunner, X265, RunnerConfig
 
-from selepro_ncs_commons.masking import getCreditMask
 from selepro_ncs_commons.filtering import masked_f3kdb
-from selepro_ncs_commons.utils import freeze_replace_mask
 
 core = vs.core
 
@@ -109,7 +108,7 @@ def src_merge(num_ep: int, crc: str, trim: slice) -> vs.VideoNode:
       fr'[B-Global][WEB-DL][1080p][AVC AAC][Multiple Subtitle][MKV].mkv', 16
   )[trim]
 
-  muse_asia_logo = getCreditMask(funimation, billibilli, 25, None, True)
+  muse_asia_logo = getCreditMask(funimation, billibilli, 25 << 8, None, True)
 
   billibilli = lvf.rfs(billibilli, billibilli.std.MaskedMerge(funimation, muse_asia_logo), (2043, None))
 
@@ -206,7 +205,7 @@ texture = get_textured()
 def get_clean_start() -> vs.VideoNode:
   ep3_start = replace_squaremask(ep03, OP_AV1.bilateral.Gaussian(1.5), (727, 50, 599, 516), (None, 195), 1)
 
-  cmask = getCreditMask(ep02, ep3_start, 40, 0.35, False)
+  cmask = getCreditMask(ep02, ep3_start, 40 << 8, 0.35, False)
 
   cmaskep2 = lvf.rfs(black_gray, cmask, [(60, None)])
 
@@ -248,7 +247,7 @@ for i, ep in enumerate(all_episodes):
   all_episodes[i] = ep
 
 credit_masks = [
-    getCreditMask(clip, ncop_nologo, 29, 1.55) for clip in [ep02, ep03]
+    getCreditMask(clip, ncop_nologo, 29 << 8, 1.55) for clip in [ep02, ep03]
 ]
 
 ep02_credit_mask = get_ep02_credit_mask(credit_masks[0]).std.BinarizeMask(24 << 8)
