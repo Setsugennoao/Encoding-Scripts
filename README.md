@@ -1,6 +1,6 @@
 # Encoding-Scripts
 
-VapourSynth Snek Scripts for my releases. I'm trying to improve!
+VapourSynth Snek Scripts for my releases. I have improved, now what?
 
 # Contacts
 
