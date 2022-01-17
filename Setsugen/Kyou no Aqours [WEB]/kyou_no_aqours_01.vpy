@@ -2,10 +2,10 @@ import stgfunc as stg
 import vapoursynth as vs
 from pathlib import Path
 from vsutil import insert_clip
-from vardautomation import FileInfo, PresetOpus
+from vardautomation import FileInfo, PresetOpus, get_vs_core
 from kyounoaquaa_commons import Encoding, KyouNoAquaaFiltering
 
-core = vs.core
+core = get_vs_core(range(0, vs.core.num_threads, 2))
 
 YOUTUBE = FileInfo(r".\Source\『きょうのAqours』第1回 高海千歌-sJqT3w813q8_AV1.mp4", idx=stg.src, preset=(PresetOpus))
 YOUTUBE.a_src = Path(r".\Source\『きょうのAqours』第1回 高海千歌-sJqT3w813q8_OPUS.webm")
