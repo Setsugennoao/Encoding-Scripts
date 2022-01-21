@@ -29,7 +29,7 @@ mean_ec = haf.EdgeCleaner(mean, 18)
 
 merge = lvf.rfs(mean_ec, mean[-1] * mean.num_frames, (660, 677))[:-1]
 
-merge = lvf.aa.based_aa(merge, stg.upscale._SHADERS).cas.CAS(0.24)
+merge = lvf.aa.based_aa(merge, stg.misc.x56_SHADERS).cas.CAS(0.24)
 
 deband = core.average.Mean([
     haf.FastLineDarkenMOD(
