@@ -1,7 +1,6 @@
 import stgfunc as stg
 import lvsfunc as lvf
 import EoEfunc as eoe
-from vsdpir import DPIR
 import vapoursynth as vs
 from stgfunc import depth
 from vsutil import insert_clip
@@ -230,7 +229,7 @@ class SeleProFiltering:
         return stg.mask.linemask(y)
 
     def __masks_linemask(self, y: vs.VideoNode) -> vs.VideoNode:
-        return stg.mask.tcanny(y, 0.0275, True).std.Inflate()
+        return stg.mask.tcanny(y, 0.0275).std.Inflate()
 
     def __masks_exp_linemask(self, linemask: vs.VideoNode) -> vs.VideoNode:
         exp_linemask = linemask.std.BinarizeMask(24 << 8)
@@ -272,11 +271,7 @@ class SeleProFiltering:
         if self.OP_ED[0]:
             OP_START, OP_ENDIN = self.OP_ED[0]
 
-            deband = dumb3kdb(
-                DPIR(
-                    depth(clip.resize.Spline64(format=vs.RGB24, matrix_in=1), 32), 4.35
-                ).resize.Spline64(format=clip.format.id, matrix=1), 16, 12
-            )
+            deband = dumb3kdb(lvf.deblock.vsdpir(clip, 4.35), 16, 12)
 
             return lvf.rfs(clip, deband, (OP_START + 1, OP_START + 56))
         return clip

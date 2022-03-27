@@ -6,13 +6,12 @@ import havsfunc as haf
 import vapoursynth as vs
 from stgfunc.fades import fade
 from stgfunc.mask import getCreditMask
+from stgfunc.deband import masked_f3kdb
 from vsutil import get_y, depth, iterate
 from vardefunc.noise import Graigasm, AddGrain
 from debandshit import dumb3kdb, placebo_deband
 from stgfunc.utils import replace_squaremask, freeze_replace_mask
 from vardautomation import FileInfo, SelfRunner, X265, RunnerConfig
-
-from selepro_ncs_commons.filtering import masked_f3kdb
 
 core = vs.core
 
