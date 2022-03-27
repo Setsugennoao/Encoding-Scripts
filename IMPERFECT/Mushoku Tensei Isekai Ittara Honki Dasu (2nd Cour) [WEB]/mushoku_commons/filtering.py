@@ -5,10 +5,10 @@ import havsfunc as hvf
 import vapoursynth as vs
 from stgfunc import depth
 from vsutil import get_y, split
+from debandshit import dumb3kdb
 from vardefunc.noise import decsiz
 from lvsfunc.kernels import Bicubic
 from vardautomation import FileInfo
-from vardefunc.deband import dumb3kdb
 from vardefunc.misc import merge_chroma
 from vardefunc.util import finalise_output
 from vardefunc.mask import ExLaplacian4, PrewittStd, region_mask, detail_mask
@@ -21,7 +21,7 @@ core = vs.core
 class ExLaplaWitt(ExLaplacian4):
   def _compute_mask(self, clip: vs.VideoNode) -> vs.VideoNode:
     exlaplacian4 = super()._compute_mask(clip)
-    prewitt = PrewittStd().get_mask(clip)
+    prewitt = PrewittStd().edgemask(clip)
     mask = core.std.Expr((exlaplacian4, prewitt), 'x y max')
     return region_mask(mask, right=2).fb.FillBorders(right=2)
 
