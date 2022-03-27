@@ -23,7 +23,7 @@ def resize_spline(clip: vs.VideoNode) -> vs.VideoNode:
 
 # 206~
 def resize_ssim(clip: vs.VideoNode) -> vs.VideoNode:
-    return depth(ssim_downsample(clip, 1280, 720, kernel=BlackManMinLobe()), 16)
+    return depth(ssim_downsample(depth(clip, 32), 1280, 720, 0.1, kernel=BlackManMinLobe(css='444')), 16)
 
 
 def get_ep_number(filename: str):

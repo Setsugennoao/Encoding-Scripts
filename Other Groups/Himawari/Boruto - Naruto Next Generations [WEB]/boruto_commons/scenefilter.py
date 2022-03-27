@@ -1,10 +1,11 @@
+from ccd import ccd
 import numpy as np
 import lvsfunc as lvf
 import EoEfunc as eoe
 import vapoursynth as vs
 from typing import Tuple
 from vardefunc import merge_chroma
-from lvsfunc.kernels import Spline64
+from lvsfunc.kernels import Catrom
 from vsutil import plane, insert_clip
 from stgfunc.tweaking import bbmod_fast
 from fine_dehalo import contrasharpening
@@ -70,12 +71,12 @@ def filterEnding16(src: vs.VideoNode, clip: vs.VideoNode, ED_FRAMES: Tuple[int, 
 
 def filterEnding17(src: vs.VideoNode, clip: vs.VideoNode, ED_FRAMES: Tuple[int, int]) -> vs.VideoNode:
     ending = src[ED_FRAMES[0]:ED_FRAMES[1] + 1]
-    yuv_444 = ending.resize.Spline64(1280, 720, format=vs.YUV444P16)
+    yuv_444 = ending.resize.Spline64(1280, 720, format=vs.YUV444PS)
 
     clip_y = plane(ending, 0)
     denoise_y = eoe.denoise.BM3D(clip_y, 1.35, 1, 'high')
 
-    denoise_y = ssim_downsample(denoise_y, 1280, 720, kernel=Spline64(format=yuv_444.format.id))
+    denoise_y = ssim_downsample(denoise_y, 1280, 720, 0.1, kernel=Catrom(format=yuv_444.format.id))
 
     denoise_uv = merge_chroma(
         denoise_y, contrasharpening(knl_means_cl(
@@ -85,14 +86,14 @@ def filterEnding17(src: vs.VideoNode, clip: vs.VideoNode, ED_FRAMES: Tuple[int, 
 
     denoised = core.std.ShufflePlanes([denoise_y, denoise_uv], [0, 1, 2], vs.YUV)
 
-    edgefixed = bbmod_fast(denoised, 1, 1)
+    edgefixed = bbmod_fast(denoised, 1, 1).resize.Bicubic(format=clip.format.id)
 
     return insert_clip(clip, edgefixed, ED_FRAMES[0])
 
 
 def filterEnding18(src: vs.VideoNode, clip: vs.VideoNode, ED_FRAMES: Tuple[int, int]) -> vs.VideoNode:
     ending = src[ED_FRAMES[0]:ED_FRAMES[1] + 1]
-    yuv_444 = ssim_downsample(ending, 1280, 720, kernel=Spline64(format=vs.YUV444P16))
+    yuv_444 = ssim_downsample(ending, 1280, 720, 0.1, kernel=Catrom(format=clip.format.id))
 
     denoise_y = eoe.denoise.BM3D(yuv_444, 0.45, 1, 'high', chroma=False)
 
@@ -103,6 +104,15 @@ def filterEnding18(src: vs.VideoNode, clip: vs.VideoNode, ED_FRAMES: Tuple[int, 
     edgefixed = bbmod_fast(edgefixed, 2, 2, 2, 2)
 
     return insert_clip(clip, edgefixed, ED_FRAMES[0])
+
+
+def filterEnding19(src: vs.VideoNode, clip: vs.VideoNode, ED_FRAMES: Tuple[int, int]) -> vs.VideoNode:
+    ending = src[ED_FRAMES[0]:ED_FRAMES[1] + 1]
+    yuv_444 = ssim_downsample(ending, 1280, 720, 0.1, kernel=Catrom(format=clip.format.id))
+
+    denoise = ccd(eoe.denoise.BM3D(yuv_444, 0.75, 1, 'high', chroma=False), 6)
+
+    return insert_clip(clip, denoise, ED_FRAMES[0])
 
 
 def filterTVTokyo(clip: vs.VideoNode, bil_downscale: vs.VideoNode, TV_TOKYO_FRAMES: Tuple[int, int]) -> vs.VideoNode:
