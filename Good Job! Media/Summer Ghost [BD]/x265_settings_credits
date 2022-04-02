@@ -1,0 +1,9 @@
+-o {clip_output:s} - --y4m
+--csv {filename:s}_log_x265.csv
+--preset medium
+--frames {frames:d} --fps {fps_num:d}/{fps_den:d} --output-depth {bits:d}
+--keyint 240 --min-keyint 24 --no-cutree --no-open-gop 
+--crf 17 --aq-strength 0.7 --cbqpoffs 2 --crqpoffs 2 --qcomp 0.72
+--psy-rd 2 --psy-rdoq 2.25
+--deblock=-1:-1 --no-sao --no-sao-non-deblock --no-strong-intra-smoothing
+--sar 1 --range limited --colorprim 1 --transfer 1 --colormatrix 1 --min-luma {min_luma:d} --max-luma {max_luma:d}
