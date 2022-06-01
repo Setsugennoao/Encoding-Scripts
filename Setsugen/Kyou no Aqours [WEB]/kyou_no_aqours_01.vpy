@@ -12,17 +12,17 @@ YOUTUBE.a_src = Path(r".\Source\『きょうのAqours』第1回 高海千歌-sJq
 
 
 class Filtering(KyouNoAquaaFiltering):
-  def mix_source(self):
-    src = self.YOUTUBE.clip_cut
-    return insert_clip(src, src[4088], 4087)
+    def mix_source(self):
+        src = self.YOUTUBE.clip_cut
+        return insert_clip(src, src[4088], 4087)
 
 
 chain = Filtering(YOUTUBE)
 filtered = chain.filterchain()
 
 if __name__ == '__main__':
-  brrrr = Encoding(YOUTUBE, filtered)
-  brrrr.run()
+    brrrr = Encoding(YOUTUBE, filtered)
+    brrrr.run()
 else:
-  stg.output(YOUTUBE.clip_cut)
-  stg.output(filtered)
+    stg.output(YOUTUBE.clip_cut)
+    stg.output(filtered)

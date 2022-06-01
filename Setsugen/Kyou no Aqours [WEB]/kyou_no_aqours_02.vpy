@@ -11,15 +11,15 @@ YOUTUBE.a_src = Path(r".\Source\『きょうのAqours』第2回　渡辺 曜-E8G
 
 
 class Filtering(KyouNoAquaaFiltering):
-  pass
+    pass
 
 
 chain = Filtering(YOUTUBE)
 filtered = chain.filterchain()
 
 if __name__ == '__main__':
-  brrrr = Encoding(YOUTUBE, filtered)
-  brrrr.run()
+    brrrr = Encoding(YOUTUBE, filtered)
+    brrrr.run()
 else:
-  stg.output(YOUTUBE.clip_cut)
-  stg.output(filtered)
+    stg.output(YOUTUBE.clip_cut)
+    stg.output(filtered)
