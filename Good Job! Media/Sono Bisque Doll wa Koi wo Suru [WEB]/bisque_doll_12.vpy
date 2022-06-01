@@ -9,12 +9,12 @@ from vardefunc.misc import merge_chroma
 from vardefunc.util import finalise_clip
 from vardautomation import X265, FileInfo
 from lvsfunc.scale import ssim_downsample
+from vardefunc.scale import fsrcnnx_upscale
 from vsdenoise.bm3d import BM3DCuda, Profile
 from lvsfunc.kernels import Catrom, Spline64
 from vardefunc.noise import Graigasm, AddGrain
 from vardefunc.aa import Eedi3SR, upscaled_sraa
 from debandshit import dumb3kdb, placebo_deband
-from vardefunc.scale import to_444, fsrcnnx_upscale
 from vsdenoise.knlm import knl_means_cl, ChannelMode
 from fine_dehalo import fine_dehalo, contrasharpening
 from vsutil import get_y, depth, iterate, plane, join
@@ -22,12 +22,12 @@ from vsutil import get_y, depth, iterate, plane, join
 core = get_vs_core(range(0, 24, 2))
 catrom = Catrom()
 
-fileinfo = FileInfo(r".\Source\Sono Bisque Doll wa Koi wo Suru - 08 - (CR CBR 1080p).mkv",
+fileinfo = FileInfo(r".\Source\Sono Bisque Doll wa Koi wo Suru - 12 - (CR CBR 1080p).mkv",
                     idx=partial(stg.src, depth=16, matrix_prop=1))
 crunchy = fileinfo.clip_cut
 
-op_ranges, ed_ranges = (2447, 4602), (31768, 33925)
-no_rescale = [(op_ranges[1] + 1, op_ranges[1] + 72), ed_ranges, (ed_ranges[1] + 1, None)]
+op_ranges = (1440, 3596)
+no_rescale = [(op_ranges[1] + 1, op_ranges[1] + 72)]
 
 cden = knl_means_cl(crunchy, 1.05, channels=ChannelMode.CHROMA)
 
@@ -40,8 +40,6 @@ recon = join([
     plane(recon, 1).bilateralgpu.Bilateral(0.26),
     plane(recon, 2).bilateralgpu.Bilateral(0.65)
 ])
-
-recon = lvf.rfs(recon, to_444(cden, None, None, True), ed_ranges)
 
 denoise = BM3DCuda(recon, [1.3, 0.36], 1, Profile.NORMAL).clip
 
@@ -96,7 +94,6 @@ deband2 = core.average.Mean([
 deband3 = stg.oyster.Core().FreqMerge(deband2, dehalo)
 
 deband = masked_f3kdb(contrasharpening(masked_f3kdb(dehalo), deband3, 2))
-# deband = lvf.rfs(deband, placebo_deband(deband, 24, 6, 6, 6), (18179, 18387))
 
 pref = iterate(get_y(deband), core.std.Maximum, 2).std.Convolution([1] * 9)
 
@@ -118,9 +115,9 @@ if __name__ == '__main__':
     encoder = X265('bisque_commons/x265_settings')
     encoder.resumable = True
 
-    fileinfo.name_clip_output = fileinfo.workdir / 'bisque_doll_08v0.265'
+    fileinfo.name_clip_output = fileinfo.workdir / 'bisque_doll_12v0.265'
 
-    encoder.run_enc(grain[18161:18401], fileinfo)
+    encoder.run_enc(grain, fileinfo)
 else:
     stg.output(crunchy)
     stg.output(grain)
