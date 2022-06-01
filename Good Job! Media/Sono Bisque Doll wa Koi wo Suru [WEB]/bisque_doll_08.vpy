@@ -18,7 +18,6 @@ from vardefunc.scale import to_444, fsrcnnx_upscale
 from vsdenoise.knlm import knl_means_cl, ChannelMode
 from fine_dehalo import fine_dehalo, contrasharpening
 from vsutil import get_y, depth, iterate, plane, join
-from stgfunc.utils import squaremask
 
 core = get_vs_core(range(0, 24, 2))
 catrom = Catrom()
@@ -31,12 +30,6 @@ op_ranges, ed_ranges = (2447, 4602), (31768, 33925)
 no_rescale = [(op_ranges[1] + 1, op_ranges[1] + 72), ed_ranges, (ed_ranges[1] + 1, None)]
 
 cden = knl_means_cl(crunchy, 1.05, channels=ChannelMode.CHROMA)
-cden = lvf.rfs(
-    cden, cden.std.MaskedMerge(
-        cden[18179] * cden.num_frames,
-        squaremask(cden, 1044, 1080, 876, 0)
-    ), (18179, 18387)
-)
 
 recon = lvf.recon.chroma_reconstruct(cden, 1, True).warp.AWarpSharp2(
     thresh=92, blur=3, type=1, depth=6, planes=[1, 2]
