@@ -13,6 +13,7 @@ EPS_SOURCES = [
     source(r".\Source\05\Summer Time Rendering 05 - (Disney+).mkv", 16)[24:-24],
     source(r".\Source\06\Summer Time Rendering 06 - (Disney+).mkv", 16)[96:-24],
     source(r".\Source\07\Summer Time Rendering 07 - (Disney+).mkv", 16)[96:-24],
+    source(r".\Source\08\Summer Time Rendering 08 - (Disney+).mkv", 16)[24:-24],
 ]
 
 EPS_OP_RANGES = [
@@ -22,7 +23,8 @@ EPS_OP_RANGES = [
     (4507, 6665),
     (3045, 5202),
     (768, 2924),
-    (1320, 3476)
+    (1320, 3476),
+    (3357, 5514),
 ]
 
 EPS_ED_RANGES = [
@@ -32,7 +34,8 @@ EPS_ED_RANGES = [
     (31576, 33685),
     (31527, 33684),
     (31529, 33686),
-    (31528, 33685)
+    (31528, 33685),
+    (31528, 33685),
 ]
 
 assert len(EPS_ED_RANGES) == len(EPS_OP_RANGES) == len(EPS_ED_RANGES)
