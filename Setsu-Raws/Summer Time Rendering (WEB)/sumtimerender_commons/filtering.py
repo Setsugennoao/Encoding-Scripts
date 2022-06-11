@@ -1,26 +1,20 @@
-import stgfunc as stg
-import lvsfunc as lvf
 from typing import List
-from jvsfunc import ccd
-import vapoursynth as vs
-from vsmlrt import Backend
-from lvsfunc.types import Range
-from debandshit import dumb3kdb
-from vardefunc.sharp import z4usm
-from EoEfunc.denoise import CMDegrain
-from edge_cleaner import edge_cleaner
-from vardautomation import get_vs_core
-from vardefunc.misc import merge_chroma
-from vardefunc.util import finalise_clip
-from vsmask.edge import FDoGTCanny, Kirsch
-from vardefunc.scale import fsrcnnx_upscale
-from vsutil import get_y, get_peak_value, depth
-from vardefunc.noise import Graigasm, AddGrain, decsiz
-from lvsfunc.kernels import Catrom, Mitchell, Bicubic, Robidoux
-from vsdenoise import BM3DCudaRTC, Profile, knl_means_cl, ChannelMode
-from fine_dehalo import contrasharpening_fine_dehalo, contrasharpening
 
-from .utils import EPS_SOURCES, EPS_OP_RANGES, EPS_ED_RANGES, merge_episodes
+import lvsfunc as lvf
+import stgfunc as stg
+import vapoursynth as vs
+from debandshit import dumb3kdb
+from jvsfunc import ccd
+from vardautomation import get_vs_core
+from vardefunc import AddGrain, Graigasm, decsiz, finalise_clip, fsrcnnx_upscale, merge_chroma
+from vsdehalo import edge_cleaner
+from vsdenoise import BM3DCudaRTC, ChannelMode, Profile, MVTools, knl_means_cl
+from vskernels import Bicubic, Catrom, Mitchell, Robidoux
+from vsmask.edge import FDoGTCanny, Kirsch
+from vsrgtools import contrasharpening, contrasharpening_dehalo
+from vsutil import depth, get_peak_value, get_y
+
+from .utils import EPS_ED_RANGES, EPS_OP_RANGES, EPS_SOURCES, merge_episodes
 
 core = get_vs_core(range(0, vs.core.num_threads, 2))
 catrom = Catrom()
@@ -29,9 +23,9 @@ copedex = Bicubic(-0.26470935063297507, 0.7358829780174403)  # SetsuCubic
 
 def filterchain(
     idx: int,
-    MEDIUM_GRAIN_BUT_IDK_MAN_THE_MOTION_BLOCKS_ARE_DYING: List[Range],
-    SUPER_COARSE_GRAINY_WTF_KILL_THIS_STUDIO_PLEASE_RANGES: List[Range],
-    VSDPIR_DEBLOCK_RANGES_JESUSSSSS: List[Range]
+    MEDIUM_GRAIN_BUT_IDK_MAN_THE_MOTION_BLOCKS_ARE_DYING: List[lvf.types.Range],
+    SUPER_COARSE_GRAINY_WTF_KILL_THIS_STUDIO_PLEASE_RANGES: List[lvf.types.Range],
+    VSDPIR_DEBLOCK_RANGES_JESUSSSSS: List[lvf.types.Range]
 ) -> vs.VideoNode:
     src = EPS_SOURCES[idx]
     OP_RANGES = EPS_OP_RANGES[idx]
@@ -39,9 +33,9 @@ def filterchain(
 
     eps_OPED_average = merge_episodes(idx)
 
-    tovinv = lvf.rfs(src, eps_OPED_average, OP_RANGES)
+    vinv = lvf.vinverse(src, 2, 6, 0.85)
+    vinv = lvf.rfs(vinv, eps_OPED_average, OP_RANGES)
 
-    vinv = lvf.vinverse(tovinv, 2, 6, 0.85)
     vinv_y = get_y(vinv)
 
     planestats = get_y(src).std.PlaneStats()
@@ -68,16 +62,16 @@ def filterchain(
 
     tdenoise = contrasharpening(bmdenoise, vinv_y).std.MaskedMerge(bmdenoise, fdog)
 
-    denoise = knl_means_cl(tdenoise, 1.0)
-    schizo_degrain = BM3DCudaRTC(
-        CMDegrain(
-            merge_chroma(denoise, tovinv), 1, 480, None, 3, False, freq_merge=False
-        ), 0.85
-    ).clip
+    denoise = knl_means_cl(tdenoise, 1.15, 2)
+
+    mv = MVTools(merge_chroma(denoise, src), 1)
+    mv.analyze()
+
+    schizo_degrain = BM3DCudaRTC(mv.degrain(None, 480), 0.85).clip
 
     halo_mask = lvf.halo_mask(tdenoise).std.Maximum()
 
-    denoise_contra = contrasharpening_fine_dehalo(
+    denoise_contra = contrasharpening_dehalo(
         denoise, vinv_y, 1.6
     ).std.MaskedMerge(
         tdenoise, core.std.Expr([mask, kirsch], 'x y -')
@@ -88,10 +82,10 @@ def filterchain(
     rescale = fsrcnnx_upscale(
         depth(
             copedex.descale(depth(denoise_contra, 32), 1685, 948), 16
-        ), 1920, 1080, stg.misc.x56_SHADERS, strength=92.5
+        ), 1920, 1080, stg.misc.x56_SHADERS, strength=75
     )
 
-    denoise_rescale = contrasharpening_fine_dehalo(
+    denoise_rescale = contrasharpening_dehalo(
         core.std.Expr([
             denoise_contra,
             fsrcnnx_upscale(
@@ -105,7 +99,7 @@ def filterchain(
                     ), 16
                 ), 1920, 1080, stg.misc.x56_SHADERS, strength=85
             ).std.MaskedMerge(denoise_contra, fdog.std.Inflate().std.Invert().std.Deflate())
-        ], 'x y min'), z4usm(bmdenoise, 1, 55), 2
+        ], 'x y min'), bmdenoise, 2
     )
 
     denoise_rescale = contrasharpening(denoise_rescale, tdenoise)
@@ -114,8 +108,8 @@ def filterchain(
 
     denoise_rescale = edge_cleaner(
         rescale.std.MaskedMerge(
-            contrasharpening_fine_dehalo(rescale, denoise_rescale, 1.5), fdog
-        ), 6.5, 17, True, 1
+            contrasharpening_dehalo(rescale, denoise_rescale, 1.5), fdog
+        ), 12.5, 17, True, 1
     )
 
     aa = merge_chroma(denoise_rescale, tden_chroma)
@@ -123,7 +117,7 @@ def filterchain(
         knl_means_cl(aa, 1.65, channels=ChannelMode.CHROMA),
         core.std.Expr([halo_mask, fdog], 'x y max').std.Deflate()
     )
-    aa = ccd(based_aa, 2.5)
+    aa = ccd(based_aa, 2.65)
     aa = lvf.rfs(aa, tden_chroma, OP_RANGES)
     aa = lvf.rfs(aa, merge_chroma(bmdenoise, tden_chroma), ED_RANGES)
 
@@ -132,17 +126,17 @@ def filterchain(
     byaa = get_y(based_aa)
 
     aa = merge_chroma(
-        contrasharpening_fine_dehalo(get_y(aa), tdenoise, 1).std.MaskedMerge(byaa, fdog.std.Inflate()), aa
+        contrasharpening_dehalo(get_y(aa), tdenoise, 1).std.MaskedMerge(byaa, fdog.std.Inflate()), aa
     )
 
-    dpir_kwargs = dict(backend=Backend.TRT())
+    dpir_kwargs = dict(cuda='trt')
 
     if len(VSDPIR_DEBLOCK_RANGES_JESUSSSSS):
         dpir_kwargs |= dict(zones=[
             (VSDPIR_DEBLOCK_RANGES_JESUSSSSS, 30)
         ])
 
-    aa = lvf.vsdpir(aa, 13.5, backend=Backend.TRT())
+    aa = lvf.vsdpir(aa, 13.5, **dpir_kwargs)
 
     deband = dumb3kdb(aa, 16, 32, 0)
 
