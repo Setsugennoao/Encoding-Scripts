@@ -1,14 +1,14 @@
-from typing import List
+from typing import Any, List
 
 import lvsfunc as lvf
 import stgfunc as stg
 import vapoursynth as vs
-from debandshit import dumb3kdb
+from debandshit import dumb3kdb, f3kbilateral, placebo_deband
 from jvsfunc import ccd
 from vardautomation import get_vs_core
 from vardefunc import AddGrain, Graigasm, decsiz, finalise_clip, fsrcnnx_upscale, merge_chroma
 from vsdehalo import edge_cleaner
-from vsdenoise import BM3DCudaRTC, ChannelMode, Profile, MVTools, knl_means_cl
+from vsdenoise import BM3DCudaRTC, ChannelMode, MVTools, Profile, knl_means_cl
 from vskernels import Bicubic, Catrom, Mitchell, Robidoux
 from vsmask.edge import FDoGTCanny, Kirsch
 from vsrgtools import contrasharpening, contrasharpening_dehalo
@@ -23,9 +23,10 @@ copedex = Bicubic(-0.26470935063297507, 0.7358829780174403)  # SetsuCubic
 
 def filterchain(
     idx: int,
-    MEDIUM_GRAIN_BUT_IDK_MAN_THE_MOTION_BLOCKS_ARE_DYING: List[lvf.types.Range],
-    SUPER_COARSE_GRAINY_WTF_KILL_THIS_STUDIO_PLEASE_RANGES: List[lvf.types.Range],
-    VSDPIR_DEBLOCK_RANGES_JESUSSSSS: List[lvf.types.Range]
+    MEDIUM_GRAIN_BUT_IDK_MAN_THE_MOTION_BLOCKS_ARE_DYING: List[lvf.types.Range] = [],
+    SUPER_COARSE_GRAINY_WTF_KILL_THIS_STUDIO_PLEASE_RANGES: List[lvf.types.Range] = [],
+    VSDPIR_DEBLOCK_RANGES_JESUSSSSS: List[lvf.types.Range] = [],
+    EPIC_DEBANDING_RANGES: List[lvf.types.Range] = []
 ) -> vs.VideoNode:
     src = EPS_SOURCES[idx]
     OP_RANGES = EPS_OP_RANGES[idx]
@@ -129,16 +130,20 @@ def filterchain(
         contrasharpening_dehalo(get_y(aa), tdenoise, 1).std.MaskedMerge(byaa, fdog.std.Inflate()), aa
     )
 
-    dpir_kwargs = dict(cuda='trt')
+    dpir_kwargs = dict[str, Any]()
 
     if len(VSDPIR_DEBLOCK_RANGES_JESUSSSSS):
         dpir_kwargs |= dict(zones=[
             (VSDPIR_DEBLOCK_RANGES_JESUSSSSS, 30)
         ])
 
-    aa = lvf.vsdpir(aa, 13.5, **dpir_kwargs)
+    aa = lvf.vsdpir(aa, 13.5, cuda='trt', **dpir_kwargs)
 
     deband = dumb3kdb(aa, 16, 32, 0)
+
+    if EPIC_DEBANDING_RANGES:
+        hard_deband = placebo_deband(f3kbilateral(deband, 18, 48, 2))
+        deband = lvf.rfs(deband, hard_deband, EPIC_DEBANDING_RANGES)
 
     edmask = stg.src(r".\masks\edmask.png", matrix_prop=1, ref=deband).resize.Bicubic(format=vs.GRAY16)
     edmask = edmask.bilateral.Gaussian(15).std.Crop(0, 0, 137, 137).std.AddBorders(40, 40, 240, 240)

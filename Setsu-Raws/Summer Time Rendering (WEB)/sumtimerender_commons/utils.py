@@ -15,6 +15,7 @@ EPS_SOURCES = [
     source(r".\Source\07\Summer Time Rendering 07 - (Disney+).mkv", 16)[96:-24],
     source(r".\Source\08\Summer Time Rendering 08 - (Disney+).mkv", 16)[24:-24],
     source(r".\Source\09\Summer Time Rendering 09 - (Disney+).mkv", 16)[24:-24],
+    source(r".\Source\10\Summer Time Rendering 10 - (Disney+).mkv", 16)[24:-24],
 ]
 
 EPS_OP_RANGES = [
@@ -27,6 +28,7 @@ EPS_OP_RANGES = [
     (1320, 3476),
     (3357, 5514),
     (2470, 4626),
+    (0, 2155),
 ]
 
 EPS_ED_RANGES = [
@@ -39,6 +41,7 @@ EPS_ED_RANGES = [
     (31528, 33685),
     (31528, 33685),
     (31527, 33684),
+    (31528, 33685),
 ]
 
 assert len(EPS_ED_RANGES) == len(EPS_OP_RANGES) == len(EPS_ED_RANGES)
@@ -69,7 +72,11 @@ def merge_episodes(curr_ep_idx: int) -> vs.VideoNode:
                 insert_op = insert_op[:len_op]
             elif insert_op.num_frames < len_op:
                 insert_op += episode[end_op - (len_op - insert_op.num_frames):end_op]
-            episode = episode[:OP_RANGES[0]] + insert_op + episode[end_op:]
+
+            if OP_RANGES[0]:
+                episode = episode[:OP_RANGES[0]] + insert_op + episode[end_op:]
+            else:
+                episode = insert_op + episode[end_op:]
 
         if ED_RANGES and red:
             len_ed = ED_RANGES[1] + 1 - ED_RANGES[0]
