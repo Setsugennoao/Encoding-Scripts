@@ -16,6 +16,7 @@ EPS_SOURCES = [
     source(r".\Source\08\Summer Time Rendering 08 - (Disney+).mkv", 16)[24:-24],
     source(r".\Source\09\Summer Time Rendering 09 - (Disney+).mkv", 16)[24:-24],
     source(r".\Source\10\Summer Time Rendering 10 - (Disney+).mkv", 16)[24:-24],
+    source(r".\Source\11\Summer Time Rendering 11 - (Disney+).mkv", 16)[24:-24],
 ]
 
 EPS_OP_RANGES = [
@@ -29,6 +30,7 @@ EPS_OP_RANGES = [
     (3357, 5514),
     (2470, 4626),
     (0, 2155),
+    (3117, 5274),
 ]
 
 EPS_ED_RANGES = [
@@ -41,6 +43,7 @@ EPS_ED_RANGES = [
     (31528, 33685),
     (31528, 33685),
     (31527, 33684),
+    (31528, 33685),
     (31528, 33685),
 ]
 
