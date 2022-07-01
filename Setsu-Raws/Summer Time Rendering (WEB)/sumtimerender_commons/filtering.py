@@ -110,7 +110,7 @@ def filterchain(
     denoise_rescale = edge_cleaner(
         rescale.std.MaskedMerge(
             contrasharpening_dehalo(rescale, denoise_rescale, 1.5), fdog
-        ), 12.5, 17, True, 1
+        ), 12.5, 17, True, True
     )
 
     aa = merge_chroma(denoise_rescale, tden_chroma)
