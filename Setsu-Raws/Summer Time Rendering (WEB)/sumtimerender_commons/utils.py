@@ -1,3 +1,4 @@
+from typing import List, Tuple
 import vapoursynth as vs
 from itertools import count
 from stgfunc.misc import source
@@ -5,27 +6,27 @@ from stgfunc.misc import source
 core = vs.core
 
 
-EPS_SOURCES = [
+EPS_SOURCES: List[List[vs.VideoNode]] = [
     [
-        source(r".\Source\01\Summer Time Rendering 01 - (Disney+).mkv", 16)[24:-24],
-        source(r".\Source\02\Summer Time Rendering 02 - (Disney+).mkv", 16)[24:-24],
-        source(r".\Source\03\Summer Time Rendering 03 - (Disney+).mkv", 16)[24:-24],
-        source(r".\Source\04\Summer Time Rendering 04 - (Disney+).mkv", 16)[24:-24],
-        source(r".\Source\05\Summer Time Rendering 05 - (Disney+).mkv", 16)[24:-24],
-        source(r".\Source\06\Summer Time Rendering 06 - (Disney+).mkv", 16)[96:-24],
-        source(r".\Source\07\Summer Time Rendering 07 - (Disney+).mkv", 16)[96:-24],
-        source(r".\Source\08\Summer Time Rendering 08 - (Disney+).mkv", 16)[24:-24],
-        source(r".\Source\09\Summer Time Rendering 09 - (Disney+).mkv", 16)[24:-24],
-        source(r".\Source\10\Summer Time Rendering 10 - (Disney+).mkv", 16)[24:-24],
-        source(r".\Source\11\Summer Time Rendering 11 - (Disney+).mkv", 16)[24:-24],
-        source(r".\Source\12\Summer Time Rendering 12 - (Disney+).mkv", 16)[96:-24],
+        # source(r".\Source\01\Summer Time Rendering 01 - (Disney+).mkv", 16)[24:-24],
+        # source(r".\Source\02\Summer Time Rendering 02 - (Disney+).mkv", 16)[24:-24],
+        # source(r".\Source\03\Summer Time Rendering 03 - (Disney+).mkv", 16)[24:-24],
+        # source(r".\Source\04\Summer Time Rendering 04 - (Disney+).mkv", 16)[24:-24],
+        # source(r".\Source\05\Summer Time Rendering 05 - (Disney+).mkv", 16)[24:-24],
+        # source(r".\Source\06\Summer Time Rendering 06 - (Disney+).mkv", 16)[96:-24],
+        # source(r".\Source\07\Summer Time Rendering 07 - (Disney+).mkv", 16)[96:-24],
+        # source(r".\Source\08\Summer Time Rendering 08 - (Disney+).mkv", 16)[24:-24],
+        # source(r".\Source\09\Summer Time Rendering 09 - (Disney+).mkv", 16)[24:-24],
+        # source(r".\Source\10\Summer Time Rendering 10 - (Disney+).mkv", 16)[24:-24],
+        # source(r".\Source\11\Summer Time Rendering 11 - (Disney+).mkv", 16)[24:-24],
+        # source(r".\Source\12\Summer Time Rendering 12 - (Disney+).mkv", 16)[96:-24],
     ],
     [
-        source(r".\Source\13\Summer Time Rendering 13 - (Disney+).mkv", 16)[24:-24],
+        source(r".\Source\13\Summer Time Rendering 13 - (Disney+).mkv", 16)[96:-24],
     ]
 ]
 
-EPS_OP_RANGES = [
+EPS_OP_RANGES: List[List[Tuple[int, int] | None]] = [
     [
         (6882, 9037),
         (4507, 6665),
@@ -41,11 +42,11 @@ EPS_OP_RANGES = [
         (2182, 4338),
     ],
     [
-        None,
+        (5778, 7935),
     ]
 ]
 
-EPS_ED_RANGES = [
+EPS_ED_RANGES: List[List[Tuple[int, int] | None]] = [
     [
         (33685, 35841),
         (31529, 33686),
@@ -61,7 +62,7 @@ EPS_ED_RANGES = [
         (31528, 33685),
     ],
     [
-        None
+        (31529, 33686),
     ]
 ]
 
