@@ -1,0 +1,7 @@
+-o {clip_output:s} - --y4m --frames {frames:d}
+--fps {fps_num:d}/{fps_den:d} --sar 1 --videoformat ntsc --range limited
+--colormatrix bt709 --colorprim bt709 --transfer bt709
+--min-luma {min_luma:d} --max-luma {max_luma:d}
+--preset slow --crf 16 --deblock=-2:-2 --min-keyint 23 --keyint 240 --ref 5 --bframes 16
+--aq-mode 3 --qcomp=0.7 --psy-rd=1.65 --psy-rdoq=1.2 --aq-strength=0.75 --no-sao
+--output-depth {bits:d}
