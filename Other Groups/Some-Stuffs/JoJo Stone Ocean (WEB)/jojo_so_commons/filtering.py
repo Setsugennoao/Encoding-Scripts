@@ -1,22 +1,23 @@
 import random
-import lvsfunc as lvf
-import stgfunc as stg
-import mvsfunc as mvf
-import havsfunc as haf
-import vapoursynth as vs
 from functools import partial
+
+import havsfunc as haf
+import lvsfunc as lvf
+import mvsfunc as mvf
+import stgfunc as stg
+import vapoursynth as vs
 from vardautomation import FileInfo
 from vardefunc.mask import detail_mask
 from vardefunc.misc import merge_chroma
+from vardefunc.noise import AddGrain, Graigasm
 from vardefunc.scale import fsrcnnx_upscale
-from vardefunc.noise import Graigasm, AddGrain
-from vsutil import get_y, split, depth, iterate, join
 from vardefunc.util import finalise_output, initialise_input
+from vsutil import depth, get_y, iterate, join, split
 
-from .scaling import Scaling
 from .deblocking import Deblocking
-from .utils import MMFilter, pre_aa, csharp
-from .masking import mt_xxpand_multi, ExLaplaWitt
+from .masking import ExLaplaWitt, mt_xxpand_multi
+from .scaling import Scaling
+from .utils import MMFilter, csharp, pre_aa
 
 core = vs.core
 

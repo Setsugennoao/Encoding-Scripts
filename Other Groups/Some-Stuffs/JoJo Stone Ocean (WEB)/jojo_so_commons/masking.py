@@ -1,6 +1,6 @@
 import vapoursynth as vs
-from vsutil import fallback
 from vsmask.edge import ExLaplacian4, PrewittStd, region_mask
+from vsutil import fallback
 
 core = vs.core
 

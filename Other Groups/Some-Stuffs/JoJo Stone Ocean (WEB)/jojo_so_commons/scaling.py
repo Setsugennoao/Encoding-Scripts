@@ -1,26 +1,27 @@
-import lvsfunc as lvf
-import vardefunc as vdf
+
+from typing import Callable, List
+
 import vapoursynth as vs
-from typing import List, Callable
-from vardefunc.util import initialise_input
+from vardefunc import initialise_input, to_444
+from vskernels import Bicubic, Bilinear, Catrom, Lanczos, Mitchell, Spline36
 
 core = vs.core
 
 
 descalers: List[Callable[[vs.VideoNode, int, int], vs.VideoNode]] = [
-    lvf.kernels.Spline36().descale,
-    lvf.kernels.Lanczos().descale,
-    lvf.kernels.Bilinear().descale,
-    lvf.kernels.Bicubic().descale,
-    lvf.kernels.Catrom().descale,
-    lvf.kernels.Mitchell().descale,
+    Spline36().descale,
+    Lanczos().descale,
+    Bilinear().descale,
+    Bicubic().descale,
+    Catrom().descale,
+    Mitchell().descale,
 ]
 
 
 class Scaling:
     @classmethod
     def upscale_i444(cls, clip: vs.VideoNode) -> vs.VideoNode:
-        return vdf.scale.to_444(clip, None, None, True)
+        return to_444(clip, None, None, True)
 
     @classmethod
     @initialise_input(bits=32)
