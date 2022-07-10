@@ -26,13 +26,14 @@ def filterchain(
     MEDIUM_GRAIN_BUT_IDK_MAN_THE_MOTION_BLOCKS_ARE_DYING: List[lvf.types.Range] = [],
     SUPER_COARSE_GRAINY_WTF_KILL_THIS_STUDIO_PLEASE_RANGES: List[lvf.types.Range] = [],
     VSDPIR_DEBLOCK_RANGES_JESUSSSSS: List[lvf.types.Range] = [],
-    EPIC_DEBANDING_RANGES: List[lvf.types.Range] = []
+    EPIC_DEBANDING_RANGES: List[lvf.types.Range] = [],
+    cour: int = 1
 ) -> vs.VideoNode:
     src = EPS_SOURCES[idx]
     OP_RANGES = EPS_OP_RANGES[idx]
     ED_RANGES = EPS_ED_RANGES[idx]
 
-    eps_OPED_average = merge_episodes(idx)
+    eps_OPED_average = merge_episodes(idx, cour)
 
     vinv = lvf.vinverse(src, 2, 6, 0.85)
     vinv = lvf.rfs(vinv, eps_OPED_average, OP_RANGES)
