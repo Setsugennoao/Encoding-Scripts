@@ -75,7 +75,7 @@ def filterchain(
 
     schizo_degrain = BM3DCudaRTC(mv.degrain(None, 480), 0.85).clip
 
-    halo_mask = fine_dehalo(tdenoise, showmask=True).std.Maximum()
+    halo_mask = fine_dehalo(tdenoise, show_mask=True).std.Maximum()
 
     denoise_contra = contrasharpening_dehalo(
         denoise, vinv_y, 1.6
@@ -148,7 +148,7 @@ def filterchain(
             (VSDPIR_DEBLOCK_RANGES_JESUSSSSS, 30)
         ])
 
-    deblock = lvf.vsdpir(aa, 14, cuda='trt', **dpir_kwargs)
+    deblock = lvf.dpir(aa, 14, cuda='trt', **dpir_kwargs)
 
     deband = dumb3kdb(deblock, 16, 32, 0)
 
