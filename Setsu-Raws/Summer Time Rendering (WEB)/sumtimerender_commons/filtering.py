@@ -70,7 +70,9 @@ def filterchain(
 
     denoise = knl_means_cl(tdenoise, 1.15, 2)
 
-    mv = MVTools(merge_chroma(denoise, src), 1)
+    denoisec = merge_chroma(denoise, src)
+
+    mv = MVTools(denoisec, 1)
     mv.analyze()
 
     schizo_degrain = BM3DCudaRTC(mv.degrain(None, 480), 0.85).clip
@@ -164,7 +166,7 @@ def filterchain(
         deband, [0.1, 0.06], 0.95, 65, False, 10, Grainer.AddNoise, temporal_average=2
     )
 
-    if cour == 1:
+    if cour == 0:
         grain = lvf.rfs(
             grain,
             grain.std.MaskedMerge(
@@ -196,7 +198,7 @@ def filterchain(
             ED_RANGES
         )
     else:
-        grain = lvf.rfs(grain, denoise, ED_RANGES)
+        grain = lvf.rfs(grain, denoisec, ED_RANGES)
 
     grain = lvf.rfs(
         grain,

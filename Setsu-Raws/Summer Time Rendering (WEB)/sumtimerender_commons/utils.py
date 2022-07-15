@@ -23,6 +23,7 @@ EPS_SOURCES: List[List[vs.VideoNode]] = [
     ],
     [
         source(r".\Source\13\Summer Time Rendering 13 - (Disney+).mkv", 16)[96:-24],
+        source(r".\Source\14\Summer Time Rendering 14 - (Disney+).mkv", 16)[96:-24],
     ]
 ]
 
@@ -43,6 +44,7 @@ EPS_OP_RANGES: List[List[Tuple[int, int] | None]] = [
     ],
     [
         (5778, 7935),
+        (1870, 4028)
     ]
 ]
 
@@ -63,6 +65,7 @@ EPS_ED_RANGES: List[List[Tuple[int, int] | None]] = [
     ],
     [
         (31529, 33686),
+        (31529, 33686)
     ]
 ]
 
