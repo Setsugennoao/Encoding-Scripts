@@ -8,11 +8,11 @@ from debandshit import dumb3kdb, f3kbilateral, placebo_deband
 from stgfunc import Grainer, SetsuCubic, adaptive_grain
 from vardautomation import get_vs_core
 from vardefunc import decsiz, finalise_clip, fsrcnnx_upscale, merge_chroma
-from vsdehalo import HQDeringmod, edge_cleaner, fine_dehalo
+from vsdehalo import edge_cleaner, fine_dehalo
 from vsdenoise import BM3DCudaRTC, CCDMode, CCDPoints, ChannelMode, MVTools, Prefilter, Profile, ccd, knl_means_cl
 from vskernels import Catrom, Mitchell, Robidoux
 from vsmask.edge import FDoGTCanny, Kirsch
-from vsrgtools import contrasharpening, contrasharpening_dehalo, lehmer_diff_merge
+from vsrgtools import contrasharpening, contrasharpening_dehalo, lehmer_diff_merge, gauss_blur
 from vsutil import depth, get_peak_value, get_y
 
 from .utils import EPS_ED_RANGES, EPS_OP_RANGES, EPS_SOURCES, merge_episodes
@@ -42,8 +42,6 @@ def filterchain(
     vinv = lvf.vinverse(src, 2, 6, 0.85)
     vinv = lvf.rfs(vinv, eps_OPED_average, OP_RANGES)
 
-    vinv_y = get_y(vinv)
-
     planestats = get_y(src).std.PlaneStats()
 
     peak = get_peak_value(planestats)
@@ -51,28 +49,26 @@ def filterchain(
     maskstats0, maskstats1 = planestats.adg.Mask(9.5), planestats.adg.Mask(13.5)
 
     kirsch, fdog = Kirsch().edgemask(planestats), FDoGTCanny().edgemask(planestats)
+    fdog_inflate = fdog.std.Inflate()
 
     mask = core.akarin.Expr(
         [maskstats0, maskstats1, kirsch, fdog],
         f'y x - z + x 2 / + y - X! {peak} P! P@ P@ X@ - / L! 1 L@ - X@ * x L@ * +'
     )
 
-    mask = mask.bilateral.Gaussian(None, 1.5)
-    mask = mask.std.MakeDiff(mask).std.Expr(f'x {peak} 2 / -')
-    mask = mask.std.Binarize(1).bilateral.Gaussian(1)
+    blur_mask = gauss_blur(mask, 1.5)
+    mask = mask.std.MakeDiff(blur_mask).std.Expr(f'x {peak} 2 / -')
+    mask = gauss_blur(mask.std.Binarize(1), 1)
 
-    tden_chroma = ccd(vinv, 3.5)
-    tdenoise = get_y(tden_chroma)
+    tdenoise = ccd(vinv, 3.5)
 
     bmdenoise = BM3DCudaRTC(tdenoise, [1.5, 0], 1, Profile.NORMAL).clip
 
-    tdenoise = contrasharpening(bmdenoise, vinv_y).std.MaskedMerge(bmdenoise, fdog)
+    tdenoise = contrasharpening(bmdenoise, vinv).std.MaskedMerge(bmdenoise, fdog, 0)
 
-    denoise = knl_means_cl(tdenoise, 1.15, 2)
+    denoise = knl_means_cl(tdenoise, 0.95, 1, channels=ChannelMode.LUMA)
 
-    denoisec = merge_chroma(denoise, src)
-
-    mv = MVTools(denoisec, 1)
+    mv = MVTools(denoise, 1)
     mv.analyze()
 
     schizo_degrain = BM3DCudaRTC(mv.degrain(None, 480), 0.85).clip
@@ -80,45 +76,42 @@ def filterchain(
     halo_mask = fine_dehalo(tdenoise, show_mask=True).std.Maximum()
 
     denoise_contra = contrasharpening_dehalo(
-        denoise, vinv_y, 1.6
+        denoise, vinv, 1.6
     ).std.MaskedMerge(
         tdenoise, core.std.Expr([mask, kirsch], 'x y -')
     ).std.MaskedMerge(
         bmdenoise, halo_mask
     )
 
+    contra_y = get_y(denoise_contra)
+    contra32 = depth(contra_y, 32)
+
+    setsu_descale = SetsuCubic().descale(contra32, 1685, 948)
+    mitch_descale = Mitchell().descale(contra32, 1600, 900)
+    roubi_descale = Robidoux().descale(contra32, 1280, 720)
+
+    shit_avg_clips = [c.resize.Bicubic(1685, 948) for c in (mitch_descale, roubi_descale)]
+
+    shit_avg = core.std.Expr(shit_avg_clips, 'x y + 32768 *', vs.GRAY16)
+    rescale_mask = fdog_inflate.std.Invert().std.Deflate()
+
     rescale = fsrcnnx_upscale(
-        depth(
-            SetsuCubic().descale(depth(denoise_contra, 32), 1685, 948), 16
-        ), 1920, 1080, stg.misc.x56_SHADERS, strength=75
+        depth(setsu_descale, 16), 1920, 1080, stg.misc.x56_SHADERS, strength=75
     )
-
-    denoise_rescale = contrasharpening_dehalo(
-        core.std.Expr([
-            denoise_contra,
-            fsrcnnx_upscale(
-                depth(
-                    Mitchell().descale(
-                        depth(denoise_contra, 32), 1600, 900
-                    ).resize.Bicubic(1685, 948).std.Merge(
-                        Robidoux().descale(
-                            depth(denoise_contra, 32), 1280, 720
-                        ).resize.Bicubic(1685, 948)
-                    ), 16
-                ), 1920, 1080, stg.misc.x56_SHADERS, strength=85
-            ).std.MaskedMerge(denoise_contra, fdog.std.Inflate().std.Invert().std.Deflate())
-        ], 'x y min'), bmdenoise, 2
+    shit_rescale = fsrcnnx_upscale(
+        shit_avg, 1920, 1080, stg.misc.x56_SHADERS, strength=85
     )
+    shit_rescale = shit_rescale.std.MaskedMerge(contra_y, rescale_mask)
 
-    denoise_rescale = contrasharpening(denoise_rescale, tdenoise)
-    denoise_rescale = HQDeringmod(
-        denoise_rescale, Prefilter.GAUSSBLUR2, mrad=2, contra=False
-    )
+    rescaled = core.std.Expr([contra_y, shit_rescale], 'x y min')
 
-    denoise_rescale = lehmer_diff_merge(denoise_rescale, rescale, partial(
+    denoise_rescale = contrasharpening_dehalo(rescaled, get_y(bmdenoise), 2)
+
+    denoise_rescale = lehmer_diff_merge(denoise_rescale, rescale, high_filter=partial(
         Prefilter.DFTTEST, sbsize=9, smode=0, sosize=0, tosize=0, tmode=0,
         slocation=[0.0, 0.0, 0.12, 1024.0, 1.0, 1024.0]
     ))
+    denoise_rescale = contrasharpening(denoise_rescale, get_y(tdenoise))
 
     denoise_rescale = edge_cleaner(
         rescale.std.MaskedMerge(
@@ -126,22 +119,23 @@ def filterchain(
         ), 12.5, 17, True, True
     )
 
-    aamerge = merge_chroma(denoise_rescale, tden_chroma)
-    based_aa = aamerge.std.MaskedMerge(
-        knl_means_cl(aamerge, 1.65, channels=ChannelMode.CHROMA),
-        core.std.Expr([halo_mask, fdog], 'x y max').std.Deflate()
+    halo_mask_hat = core.std.Expr([halo_mask, fdog], 'x y max').std.Deflate()
+
+    knl_cdenoise = knl_means_cl(tdenoise, 1.55, channels=ChannelMode.CHROMA)
+
+    based_cdenoise = tdenoise.std.MaskedMerge(knl_cdenoise, halo_mask_hat, [1, 2])
+    cdenoise = ccd(
+        based_cdenoise, 2.65, mode=CCDMode.NNEDI_BICUBIC, scale=1.25, ref_points=CCDPoints.ALL
     )
-    aa = ccd(based_aa, 2.65, mode=CCDMode.NNEDI_BICUBIC, scale=1.25, ref_points=CCDPoints.ALL)
-    aa = lvf.rfs(aa, tden_chroma, OP_RANGES)
-    aa = lvf.rfs(aa, merge_chroma(bmdenoise, tden_chroma), ED_RANGES)
+    cdenoise = merge_chroma(denoise_rescale, cdenoise)
+    cdenoise = lvf.rfs(cdenoise, tdenoise, OP_RANGES)
+    cdenoise = lvf.rfs(cdenoise, bmdenoise, ED_RANGES)
 
-    aa = knl_means_cl(aa, 0.38, channels=ChannelMode.CHROMA).std.MaskedMerge(based_aa, fdog, [1, 2])
+    cdenoise = knl_means_cl(
+        cdenoise, 0.38, channels=ChannelMode.CHROMA
+    ).std.MaskedMerge(based_cdenoise, fdog, [1, 2])
 
-    byaa = get_y(based_aa)
-
-    aa = merge_chroma(
-        contrasharpening_dehalo(get_y(aa), tdenoise, 1).std.MaskedMerge(byaa, fdog.std.Inflate()), aa
-    )
+    cdenoise = contrasharpening_dehalo(cdenoise, tdenoise, 1).std.MaskedMerge(based_cdenoise, fdog_inflate, 0)
 
     dpir_kwargs = dict[str, Any]()
 
@@ -150,12 +144,14 @@ def filterchain(
             (VSDPIR_DEBLOCK_RANGES_JESUSSSSS, 30)
         ])
 
-    deblock = lvf.dpir(aa, 14, cuda='trt', **dpir_kwargs)
+    deblock = lvf.dpir(cdenoise, 13.65, cuda='trt', **dpir_kwargs)
 
     deband = dumb3kdb(deblock, 16, 32, 0)
 
     deband = lvf.rfs(
-        deband, merge_chroma(deband, ccd(vinv, 0.5, 1, ref_points=CCDPoints.HIGH)), BIG_ASS_GRAIN_DUDE_PLEASE_CMON
+        deband, merge_chroma(
+            deband, ccd(vinv, 0.5, 1, ref_points=CCDPoints.HIGH, planes=[1, 2])
+        ), BIG_ASS_GRAIN_DUDE_PLEASE_CMON
     )
 
     if EPIC_DEBANDING_RANGES:
@@ -198,7 +194,7 @@ def filterchain(
             ED_RANGES
         )
     else:
-        grain = lvf.rfs(grain, denoisec, ED_RANGES)
+        grain = lvf.rfs(grain, denoise, ED_RANGES)
 
     grain = lvf.rfs(
         grain,
